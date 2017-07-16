@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -42,14 +44,16 @@ public class AcidRainClient {
 		public void actionPerformed(ActionEvent e) {
 			String cmd = e.getActionCommand();
 			switch(cmd){
-			case "M":
-				
+			case "B":
+				beginGame();
 				break;
 			}
 		}
 	};
 	
-	
+	void beginGame(){
+		
+	}
 	
 	
 
@@ -94,7 +98,7 @@ public class AcidRainClient {
 		
 		//클라 시작 즉시 서버에 접속하여 DB와 통신 준비한다
 		try{
-			s = new Socket("192.168.219.102", 12345);
+			s = new Socket(getLocalIP(), 12345);
 			oos = new ObjectOutputStream( s.getOutputStream() );
 			// 오브젝트로 통신하기위한 magical sequence
 			oos.flush();
@@ -104,6 +108,21 @@ public class AcidRainClient {
 		}
 		
 	}
+
+	public String getLocalIP() {
+		
+		String localIP = "127.0.0.1";
+		
+		try {
+			localIP = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			System.out.println("Local IP 얻기 실패" + e);
+		}
+		
+		return localIP;
+		
+	}
+	
 	
 	void setGUI(){
 		

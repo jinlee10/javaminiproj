@@ -1,5 +1,8 @@
 package com.tacademy.rain.client;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -7,16 +10,146 @@ import javax.swing.JPanel;
 
 public class AcidRainClientPanel extends JPanel{
 	
-	ArrayList<String> list;
+	private ArrayList<String> list;	//단어 저장용 리스트
+	private ArrayList<DrawWord> wList;	//단어 + x, y coord 저장용 리스트
 	
-	int xCord, yCord = -15;	//초기값 
 	
-	Random random = new Random(); //랜덤한 자리선정을위한..
+	private int xCoord, yCoord = -15;	//초기값 
+	private int level = 1; //레벨 (1~3까지있는걸로 하자 or not exist)
 	
-	boolean onDrawMode = false;
+	private Random random = new Random(); //랜덤한 자리선정을위한..
 	
-	public AcidRainClientPanel(ThreadTest tt){
+	private boolean onDrawMode = false;
+	
+	//애니메이션 이너쓰레드 돌리기용
+	private boolean onAir = false;
+	private AniThread at;
+	private DrawWord word;
+	
+	Font font = new Font("batang", Font.PLAIN, 22);
+	
+	//생성자
+	public AcidRainClientPanel(){
 		
 	}
+	
+	public void setList(ArrayList<String> list){
+		wList = new ArrayList<DrawWord>();
+		
+		this.list = list;
+		
+		testAssignWList();
+		
+		System.out.println(list);
+	}
+	
+	
+	//애니메이션 쓰레드
+	public void startAniThread(){
+		if(!onAir){
+			onAir = true;
+			at = new AniThread();
+			
+			at.start();
+		}else{
+			onAir = !onAir;
+		}
+	}
+	
+	public void testAssignWList(){
+		for(int i = 0; i < this.list.size(); i++){
+			xCoord = random.nextInt(500);
+			yCoord = random.nextInt(600) - 600; //맞나?
+			int deltay = random.nextInt(100) - 10;
+			
+			//alignment : 정렬
+			
+			word = new DrawWord(xCoord, yCoord, this.list.get(i), 20);
+			wList.add(word);
+			
+			System.out.println(wList.get(i).getText());
+		}	
+		System.out.println("야호 여까지 왔다!");
+	}
+	
+	class AniThread extends Thread{
+		
+		int dx;
+		int dy = 20;
+		
+		public AniThread(){
+		}
+		
+		public void run(){	//여기서는 내려주는거랑 계속 그려주기만 하면됨
+			while(onAir){
+				
+				
+				drawWords(20);
+				
+				
+				
+				repaint();
+				
+				
+				try{
+					sleep(500);
+				} catch(InterruptedException e){}
+			}
+		}
+		
+	}
+	
+	public void drawWords(int dy){
+		for(int i = 0; i < wList.size(); i++){
+			DrawWord temp = wList.get(i);
+			temp.yAxisMover();
+			wList.set(i, temp);
+		}
+	}
+	
+	// =============   페  인  트  ================
+	@Override
+	public void paint(Graphics g) {
+		g.setColor(Color.white);
+		g.fillRect(0, 0, getWidth(), getHeight());
+		
+		
+		g.setFont(font);
+		g.setColor(new Color(200, 170, 220));
+		if(wList != null){
+			for(int i = 0; i < wList.size(); i++){
+				g.drawString(wList.get(i).getText(), 
+						wList.get(i).getX(), wList.get(i).getY());
+			}
+		}
+		
+		//super.paint(g);
+	}
+	
+	@Override
+	public void update(Graphics g) {
+		
+//		super.update(g);
+		
+		paint(g);	//내가 오버라이딩 하면 호출해야 그림이 그려진다
+	}
+	
+	// ------------------------------------------
+	
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
+	public ArrayList<String> getList() {
+		return list;
+	}
+
+	
+	
+	
 	
 }

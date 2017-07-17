@@ -28,24 +28,28 @@ import javax.swing.JTextField;
 
 public class AcidRainClient {
 	
-	JFrame f;
-	JPanel cPanel, ePanel, csPanel, csnPanel, cssPanel;
-	JTextField tfEntry, tfChat;	//단어입력란, (추후 추가할)챗 입력란
-	MyTextArea taScreen;			//게임 본화면 표시할 text area
-	JTextArea taList;			//테스트용 ta
-	JButton btn, btnStart;
+	private JFrame f;
+	private JPanel cPanel, ePanel, csPanel, csnPanel, cssPanel;
+	private JTextField tfEntry, tfChat;	//단어입력란, (추후 추가할)챗 입력란
+	private MyTextArea taScreen;			//게임 본화면 표시할 text area
+	private JTextArea taList;			//테스트용 ta
+	private JButton btn, btnStart;
 	
 	//콘솔 출력 thread 테스트용 리스트와 쓰레드
-	ArrayList<String> list;
-	ThreadTest ttest;
+	private ArrayList<String> list;
+	private ThreadTest ttest;
 	
 	//이미지 배경화면 설ㅈ어 관련
-	Image img;
+	private Image img;
+	private AcidRainClientPanel ap;
+
+	private String[] words = {"무지개", "멱살", "줄넘기", "기지개", 
+	"게살버거", "새우버거", "모니터", "프린터", "자바", "스프링"};
 	
 	// 통신 관련 변수
-	Socket s;
-	ObjectInputStream ois;
-	ObjectOutputStream oos;
+	private Socket s;
+	private ObjectInputStream ois;
+	private ObjectOutputStream oos;
 	
 	//쓰레드
 	
@@ -56,7 +60,7 @@ public class AcidRainClient {
 			String cmd = e.getActionCommand();
 			switch(cmd){
 			case "G":
-				GameStart();
+				gameStart();
 				break;
 			case "E":	//단어입력후 엔터 or 버튼클릭
 				//EnterWords();
@@ -68,10 +72,25 @@ public class AcidRainClient {
 		}
 	};
 	
-	void GameStart(){
-		ttest = new ThreadTest();
-		ttest.start();
-		ttest.startGame(1, this);
+	void gameStart(){
+//		ttest = new ThreadTest();
+//		ttest.start();
+//		ttest.startGame(1, this);
+		
+		list = new ArrayList<String>();
+		for(int i = 0; i < words.length; i++){
+			list.add(words[i]);
+		}
+		
+		ap.setList(list);
+		ap.startAniThread();
+	}
+	
+	void putValues2List(){
+		list = new ArrayList<String>();
+		for(int i = 0; i < words.length; i++){
+			list.add(words[i]);
+		}
 	}
 	
 	
@@ -115,7 +134,7 @@ public class AcidRainClient {
 		
 		setGUI();
 		
-		setThisImageAsBackground();
+//		setThisImageAsBackground();
 		
 		//클라 시작 즉시 서버에 접속하여 DB와 통신 준비한다
 //		try{
@@ -164,9 +183,13 @@ public class AcidRainClient {
 		
 		// center panel
 		cPanel = new JPanel(new BorderLayout());	
-		taScreen = new MyTextArea();
-		taScreen.setBorder(BorderFactory.createLineBorder(new Color(222, 200, 233), 3));
-		taScreen.setEditable(false);
+		//my text area
+//		taScreen = new MyTextArea();
+//		taScreen.setBorder(BorderFactory.createLineBorder(new Color(222, 200, 233), 3));
+//		taScreen.setEditable(false);
+		//apanel
+		ap = new AcidRainClientPanel();
+		
 		
 		// cs panels
 		csPanel = new JPanel(new GridLayout(2, 1));
@@ -212,7 +235,8 @@ public class AcidRainClient {
 		
 		
 		// add 'em all onto cpanel
-		cPanel.add(taScreen, BorderLayout.CENTER);
+//		cPanel.add(taScreen, BorderLayout.CENTER);
+		cPanel.add(ap, BorderLayout.CENTER);
 		cPanel.add(csPanel, BorderLayout.SOUTH);
 
 		

@@ -19,18 +19,23 @@ public class AcidRainClientPanel extends JPanel{
 	
 	private Random random = new Random(); //랜덤한 자리선정을위한..
 	
-	private boolean onDrawMode = false;
+	Font font = new Font("batang", Font.PLAIN, 22);
 	
 	//애니메이션 이너쓰레드 돌리기용
 	private boolean onAir = false;
 	private AniThread at;
 	private DrawWord word;
+	private int deltaY;
+	private Color c = Color.white;
 	
-	Font font = new Font("batang", Font.PLAIN, 22);
+	//쓰레드 종료용
+	private int wordCnt;	//DrawWord 갯수 카운트용
+	private AcidRainClient client;
+	
 	
 	//생성자
-	public AcidRainClientPanel(){
-		
+	public AcidRainClientPanel(AcidRainClient client){
+		 this.client = client;
 	}
 	
 	public void setList(ArrayList<String> list){
@@ -39,8 +44,6 @@ public class AcidRainClientPanel extends JPanel{
 		this.list = list;
 		
 		testAssignWList();
-		
-		System.out.println(list);
 	}
 	
 	
@@ -56,20 +59,54 @@ public class AcidRainClientPanel extends JPanel{
 		}
 	}
 	
+	//list 비교용
+	public void matchWord(String s){
+		for(int i = 0; i < wList.size(); i++){
+			if(s.equals(wList.get(i).getText())){
+				wList.remove(i);
+				System.out.println(s + " 입력!");
+			}
+			checkEmptyList();
+		}
+	}
+	
+	//바닥에 닿으면?
+	public void wordTouchedHeight(){
+		for(int i = 0; i < wList.size(); i++){
+			if(wList.get(i).getY() >= getHeight()){
+				System.out.println(wList.get(i).getText()+ " 땅에 닿음!");
+				wList.remove(i);
+			}
+			checkEmptyList();
+		}
+	}
+	
+	
+	
+	//list empty 테스트용
+	public void checkEmptyList(){
+		// 리스트 없을시 리턴
+		if(wList.isEmpty()){
+			System.out.println("텅빔");
+			client.gameIsOver();
+			repaint();
+			onAir = !onAir;
+		}
+	}
+	
 	public void testAssignWList(){
 		for(int i = 0; i < this.list.size(); i++){
 			xCoord = random.nextInt(500);
 			yCoord = random.nextInt(600) - 600; //맞나?
-			int deltay = random.nextInt(100) - 10;
+			deltaY = random.nextInt(50) + 20;
 			
 			//alignment : 정렬
 			
-			word = new DrawWord(xCoord, yCoord, this.list.get(i), 20);
+			word = new DrawWord(xCoord, yCoord, this.list.get(i), deltaY);
 			wList.add(word);
 			
 			System.out.println(wList.get(i).getText());
-		}	
-		System.out.println("야호 여까지 왔다!");
+		}			
 	}
 	
 	class AniThread extends Thread{
@@ -82,18 +119,17 @@ public class AcidRainClientPanel extends JPanel{
 		
 		public void run(){	//여기서는 내려주는거랑 계속 그려주기만 하면됨
 			while(onAir){
-				
-				
 				drawWords(20);
-				
-				
+
+				//리스트 수량 확인
+				wordTouchedHeight();
 				
 				repaint();
-				
 				
 				try{
 					sleep(500);
 				} catch(InterruptedException e){}
+				
 			}
 		}
 		
@@ -107,12 +143,15 @@ public class AcidRainClientPanel extends JPanel{
 		}
 	}
 	
+	void setGraphicsSetting(Graphics g){
+		g.setColor(c);
+		g.fillRect(0, 0, getWidth(), getHeight());
+	}
+	
 	// =============   페  인  트  ================
 	@Override
 	public void paint(Graphics g) {
-		g.setColor(Color.white);
-		g.fillRect(0, 0, getWidth(), getHeight());
-		
+		setGraphicsSetting(g);
 		
 		g.setFont(font);
 		g.setColor(new Color(200, 170, 220));
@@ -128,8 +167,6 @@ public class AcidRainClientPanel extends JPanel{
 	
 	@Override
 	public void update(Graphics g) {
-		
-//		super.update(g);
 		
 		paint(g);	//내가 오버라이딩 하면 호출해야 그림이 그려진다
 	}

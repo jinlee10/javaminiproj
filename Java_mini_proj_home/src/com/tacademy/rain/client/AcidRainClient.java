@@ -63,7 +63,7 @@ public class AcidRainClient {
 				gameStart();
 				break;
 			case "E":	//단어입력후 엔터 or 버튼클릭
-				//EnterWords();
+				EnterWords();
 				break;
 			case "T":	//transfer chat : 챗 보내기
 				//beginGame();
@@ -73,10 +73,6 @@ public class AcidRainClient {
 	};
 	
 	void gameStart(){
-//		ttest = new ThreadTest();
-//		ttest.start();
-//		ttest.startGame(1, this);
-		
 		list = new ArrayList<String>();
 		for(int i = 0; i < words.length; i++){
 			list.add(words[i]);
@@ -84,6 +80,14 @@ public class AcidRainClient {
 		
 		ap.setList(list);
 		ap.startAniThread();
+		
+		//버튼 끝날때까지 비활성화
+		btnStart.setEnabled(false);
+	}
+	
+	//버튼 활성화
+	public void gameIsOver(){
+		btnStart.setEnabled(true);
 	}
 	
 	void putValues2List(){
@@ -91,6 +95,12 @@ public class AcidRainClient {
 		for(int i = 0; i < words.length; i++){
 			list.add(words[i]);
 		}
+	}
+	
+	void EnterWords(){
+		String input = tfEntry.getText();
+		ap.matchWord(input);	//텍스트를 받아온 후 보내버린다(비교하러)
+		tfEntry.setText("");
 	}
 	
 	
@@ -183,12 +193,7 @@ public class AcidRainClient {
 		
 		// center panel
 		cPanel = new JPanel(new BorderLayout());	
-		//my text area
-//		taScreen = new MyTextArea();
-//		taScreen.setBorder(BorderFactory.createLineBorder(new Color(222, 200, 233), 3));
-//		taScreen.setEditable(false);
-		//apanel
-		ap = new AcidRainClientPanel();
+		ap = new AcidRainClientPanel(this);
 		
 		
 		// cs panels
@@ -198,7 +203,12 @@ public class AcidRainClient {
 		btn = new JButton("ENTER");
 		btn.setActionCommand("E");
 		btn.addActionListener(al);
-		tfEntry = new JTextField();
+		
+		//tfEntry에 ActionListener추가하여 엔터 인식하도록
+		tfEntry = new JTextField();	
+		tfEntry.setActionCommand("E");
+		tfEntry.addActionListener(al);
+		
 		csnPanel.add(new JLabel("Write here >"), BorderLayout.WEST);
 		csnPanel.add(tfEntry, BorderLayout.CENTER);
 		csnPanel.add(btn, BorderLayout.EAST);

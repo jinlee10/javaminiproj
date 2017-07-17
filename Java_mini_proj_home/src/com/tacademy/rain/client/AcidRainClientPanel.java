@@ -88,8 +88,8 @@ public class AcidRainClientPanel extends JPanel{
 		// 리스트 없을시 리턴
 		if(wList.isEmpty()){
 			System.out.println("텅빔");
-			client.gameIsOver();
 			repaint();
+			client.gameIsOver();
 			onAir = !onAir;
 		}
 	}

@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -20,16 +21,22 @@ import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.tacademy.rain.vo.AcidRain;
+import com.tacademy.rain.vo.Message;
+
 public class AcidRainClient {
 	
 	private JFrame f;
-	private JPanel cPanel, ePanel, csPanel, csnPanel, cssPanel;
+	private JPanel cPanel, csPanel, csnPanel, cssPanel,
+			ePanel, ecPanel, ecnPanel, esPanel; 
+	private JComboBox<String> cbox;
 	private JTextField tfEntry, tfChat;	//단어입력란, (추후 추가할)챗 입력란
 	private MyTextArea taScreen;			//게임 본화면 표시할 text area
 	private JTextArea taList;			//테스트용 ta
@@ -54,6 +61,11 @@ public class AcidRainClient {
 	//쓰레드
 	
 	
+	//JDBC 3 tier 연동
+	ArrayList<AcidRain> rList; //단어 받아오는 리스트
+	
+	
+	
 	ActionListener al = new ActionListener() {
 		
 		public void actionPerformed(ActionEvent e) {
@@ -65,17 +77,100 @@ public class AcidRainClient {
 			case "E":	//단어입력후 엔터 or 버튼클릭
 				EnterWords();
 				break;
-			case "T":	//transfer chat : 챗 보내기
+			case "T":	//transfer chat : 챗 보내기 // no need 4 now
 				//beginGame();
+				break;
+				
+			//////////////////////////////////////////////////////////
+			// CRUD //
+			case "I":
+				insertUser();
+				break;
+			case "S":
+				selectWords();	
+				break;
+			case "U":
+				updateUserScore();	
+				break;
+			case "D":
+				deleteUser();	 
+				break;
+			case "N":
+				selectWordTypeName();
 				break;
 			}
 		}
 	};
 	
+	//////////////////////////////////////////////////////////////
+	//				C	R	U	D	
+	//////////////////////////////////////////////////////////////
+	
+	void insertUser(){
+		
+	}
+	
+	void selectWords(){
+		// 0: insert 1:select 2:update 3:delete
+		
+		AcidRain acidrain = new AcidRain();
+		
+		acidrain.setTypeidx(1); //select
+		
+	}
+	
+	void updateUserScore(){
+		
+	}
+	
+	void deleteUser(){
+		
+	}
+	
+	// default word type
+	void selectWordTypeName(){
+		AcidRain acidrain = new AcidRain();
+		acidrain.setTypeidx(1);//select
+		//acidrain.set
+		
+		Message msg = new Message();
+		msg.setType(1);	//select
+		msg.setAcidrain(acidrain);//객체화시켜서 보낼거야
+		
+		AcidRain tempR = null;//템프
+		
+		try{
+			oos.writeObject(msg);	// 보드말고 메세지로 객체화시켜보낸다
+			System.out.println("MSG sent well!");
+			
+			msg = (Message) ois.readObject();
+			rList = msg.getList();
+			
+			for(int i = 0; i < rList.size(); i++){
+				tempR = rList.get(i);
+			}
+			
+		} catch(IOException e){
+			System.out.println("msg selectDefault error: " + e);
+		} catch (ClassNotFoundException e) {
+			System.out.println("msg 잘못 받음! selectDefault error: " + e);
+		}
+		
+		
+		
+		
+		
+		
+		
+	}
+	
+	// ==========================================================
+	
+	
 	void gameStart(){
 		list = new ArrayList<String>();
-		for(int i = 0; i < words.length; i++){
-			list.add(words[i]);
+		for(int i = 0; i < rList.size(); i++){
+			list.add(rList.get(i).getWord()); //받아온걸 넣어
 		}
 		
 		ap.setList(list);
@@ -99,6 +194,12 @@ public class AcidRainClient {
 	
 	void EnterWords(){
 		String input = tfEntry.getText();
+		
+		//
+		//쓰레드가 돌아가고있을때를 체크하고 돌고있을대만 아래 메소드를
+		//실행하고 싶으면 어떻게할까?
+		//
+		
 		ap.matchWord(input);	//텍스트를 받아온 후 보내버린다(비교하러)
 		tfEntry.setText("");
 	}
@@ -147,15 +248,15 @@ public class AcidRainClient {
 //		setThisImageAsBackground();
 		
 		//클라 시작 즉시 서버에 접속하여 DB와 통신 준비한다
-//		try{
-//			s = new Socket(getLocalIP(), 12345);
-//			oos = new ObjectOutputStream( s.getOutputStream() );
-//			// 오브젝트로 통신하기위한 magical sequence
-//			oos.flush();
-//			
-//		}catch(IOException e){
-//			System.out.println("클라 접속 오류: " + e);
-//		}
+		try{
+			s = new Socket(getLocalIP(), 12345);
+			oos = new ObjectOutputStream( s.getOutputStream() );
+			// 오브젝트로 통신하기위한 magical sequence
+			oos.flush();
+			
+		}catch(IOException e){
+			System.out.println("클라 접속 오류: " + e);
+		}
 		
 	}
 
@@ -208,6 +309,7 @@ public class AcidRainClient {
 		tfEntry = new JTextField();	
 		tfEntry.setActionCommand("E");
 		tfEntry.addActionListener(al);
+		tfEntry.setBorder(BorderFactory.createLineBorder(new Color(222, 200, 222), 4));
 		
 		csnPanel.add(new JLabel("Write here >"), BorderLayout.WEST);
 		csnPanel.add(tfEntry, BorderLayout.CENTER);
@@ -219,6 +321,7 @@ public class AcidRainClient {
 		btn.setActionCommand("T"); //transfer chat
 		btn.addActionListener(al);
 		tfChat = new JTextField();
+		tfChat.setBorder(BorderFactory.createLineBorder(new Color(212, 222, 222), 4));
 		cssPanel.add(new JLabel("Enter chat >"), BorderLayout.WEST);
 		cssPanel.add(tfChat, BorderLayout.CENTER);
 		cssPanel.add(btn, BorderLayout.EAST);
@@ -238,9 +341,34 @@ public class AcidRainClient {
 		btnStart.setActionCommand("G");
 		btnStart.addActionListener(al);
 		
-		ePanel.add(new JLabel("~ ~ ~ players list ~ ~ ~"), BorderLayout.NORTH);
 		ePanel.add(taList, BorderLayout.CENTER);
 		ePanel.add(btnStart, BorderLayout.SOUTH);
+		ePanel.setBorder(BorderFactory.createLineBorder(new Color(232, 220, 210), 3));
+		
+		ecPanel = new JPanel(new GridLayout(2, 1)); //east Center
+		
+		ecnPanel = new JPanel(new BorderLayout());
+		ecnPanel.add(new JLabel("~ ~ ~ players list ~ ~ ~"), BorderLayout.NORTH);
+		ecnPanel.add(taList, BorderLayout.CENTER);
+		
+		ecPanel.add(ecnPanel);
+		ecPanel.add(new JTextArea());
+		
+		esPanel = new JPanel(new GridLayout(2, 1));
+		esPanel.setBorder(BorderFactory.createLineBorder(new Color(232, 240, 220), 3));
+		
+		cbox = new JComboBox<String>();
+		
+		esPanel.add(cbox);
+		esPanel.add(btnStart);
+		
+		ePanel.add(ecPanel, BorderLayout.CENTER);
+		ePanel.add(esPanel, BorderLayout.SOUTH);
+		
+		
+		
+		
+		
 		
 		
 		

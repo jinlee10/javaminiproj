@@ -96,7 +96,7 @@ SELECT CHAR_LENGTH(word) clength, COUNT(CHAR_LENGTH(word)) ccnt
 
 DROP TABLE IF EXISTS users;
 CREATE TABLE IF NOT EXISTS users(
-	useridx integer(2) NOT NULL,
+	useridx integer(1) AUTO_INCREMENT,	-- 귀차니즘이 잘못했네
 	username varchar(15) NOT NULL UNIQUE,
 	userscoretot integer(5) DEFAULT 0,
 	idate datetime NOT NULL DEFAULT NOW(),
@@ -116,8 +116,8 @@ DESC users;
 -- --------------------------------------------------------------
 
 DROP TABLE IF EXISTS chatlog;
-CREATE TABLE IF NOT EXISTS charlog(
-	logidx integer NOT NULL,
+CREATE TABLE IF NOT EXISTS chatlog(
+	logidx integer NOT NULL AUTO_INCREMENT,
 	logcontents varchar NOT NULL,
 	logusername varchar(15) NOT NULL UNIQUE,
 	logflag integer(1) NOT NULL DEFAULT 0,
@@ -127,4 +127,29 @@ CREATE TABLE IF NOT EXISTS charlog(
 
 
 
+-- ==============================================================================
 
+--	idx별 typenanme 출력
+
+-- SELECT wordtype.typename FROM wordtype;
+
+-- typeidx별? 단어 출력
+
+-- SELECT words.word FROM wordtype inner join words ON wordtype.typeidx = words.typeidx WHERE wordtype.typeidx = ?;
+
+-- insert
+ desc users;
+-- select COUNT(selN.username) cnt_usrname from (select username from users) selN;
+
+-- insert user
+-- insert into users(username, ip) values(?, ?);
+
+select * from users;
+
+-- update user's score
+-- update users set userscoretot = userscoretot + 10 where username = '김두한';
+
+-- delete user
+delete from users where username = '김두한';
+
+SELECT wordtype.typename FROM wordtype;

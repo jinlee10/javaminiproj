@@ -1,4 +1,4 @@
-package com.tacademy.rain.dao;
+package  com.tacademy.board.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,10 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class JDBCUtil {
+
 	public static Connection getConnection() {
 		try {
 	        Class.forName("com.mysql.jdbc.Driver");
-	        return DriverManager.getConnection("jdbc:mysql://192.168.205.103:3306/acidrain", "root", "1234");
+	        return DriverManager.getConnection("jdbc:mysql://192.168.205.153:3306/community", "root", "1234");
 	        //접속정보 리턴해오는거죠? 그래서 dao에서 쉽게한거
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -62,4 +63,5 @@ public class JDBCUtil {
 			conn = null;
 		}
 	}
+
 }

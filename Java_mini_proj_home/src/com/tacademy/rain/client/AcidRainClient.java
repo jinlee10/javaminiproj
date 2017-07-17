@@ -1,6 +1,7 @@
 package com.tacademy.rain.client;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -8,13 +9,13 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -28,6 +29,7 @@ public class AcidRainClient {
 	JPanel cPanel, ePanel, csPanel, csnPanel, cssPanel;
 	JTextField tfEntry, tfChat;	//단어입력란, (추후 추가할)챗 입력란
 	JTextArea taScreen;			//게임 본화면 표시할 text area
+	JTextArea taList;			//테스트용 ta
 	JButton btn;
 	
 	// 테스트용 스트링(db 연결 전)
@@ -39,12 +41,21 @@ public class AcidRainClient {
 	ObjectInputStream ois;
 	ObjectOutputStream oos;
 	
+	//쓰레드
+	
+	
 	ActionListener al = new ActionListener() {
 		
 		public void actionPerformed(ActionEvent e) {
 			String cmd = e.getActionCommand();
 			switch(cmd){
 			case "B":
+				beginGame();
+				break;
+			case "E":	//단어입력후 엔터 or 버튼클릭
+				beginGame();
+				break;
+			case "T":	//transfer chat : 챗 보내기
 				beginGame();
 				break;
 			}
@@ -97,16 +108,16 @@ public class AcidRainClient {
 		setGUI();
 		
 		//클라 시작 즉시 서버에 접속하여 DB와 통신 준비한다
-		try{
-			s = new Socket(getLocalIP(), 12345);
-			oos = new ObjectOutputStream( s.getOutputStream() );
-			// 오브젝트로 통신하기위한 magical sequence
-			oos.flush();
-			
-		}catch(IOException e){
-			System.out.println("클라 접속 오류: " + e);
-		}
-		
+//		try{
+//			s = new Socket(getLocalIP(), 12345);
+//			oos = new ObjectOutputStream( s.getOutputStream() );
+//			// 오브젝트로 통신하기위한 magical sequence
+//			oos.flush();
+//			
+//		}catch(IOException e){
+//			System.out.println("클라 접속 오류: " + e);
+//		}
+//		
 	}
 
 	public String getLocalIP() {
@@ -127,18 +138,58 @@ public class AcidRainClient {
 	void setGUI(){
 		
 		f = new JFrame("Weak Adic Rain Game Client (o^0^)==o");
-		f.setBounds(new Rectangle(0,0,550,700));
+		f.setBounds(new Rectangle(0,0,700,600));
 		
 		// center panel
 		cPanel = new JPanel(new BorderLayout());	
 		taScreen = new MyTextArea();
+		taScreen.setBorder(BorderFactory.createLineBorder(new Color(222, 200, 233), 3));
+		taScreen.setEditable(false);
 		
 		// cs panels
-		csPanel = new JPanel(new BorderLayout());
+		csPanel = new JPanel(new GridLayout(2, 1));
+		csnPanel = new JPanel(new BorderLayout()); //CSN
 		
+		btn = new JButton("ENTER");
+		btn.setActionCommand("E");
+		btn.addActionListener(al);
+		tfEntry = new JTextField();
+		csnPanel.add(new JLabel("Write here >"), BorderLayout.WEST);
+		csnPanel.add(tfEntry, BorderLayout.CENTER);
+		csnPanel.add(btn, BorderLayout.EAST);
+		
+		cssPanel = new JPanel(new BorderLayout());	//CSS
+		
+		btn = new JButton("ENTER");
+		btn.setActionCommand("T"); //transfer chat
+		btn.addActionListener(al);
+		tfChat = new JTextField();
+		cssPanel.add(new JLabel("Enter chat >"), BorderLayout.WEST);
+		cssPanel.add(tfChat, BorderLayout.CENTER);
+		cssPanel.add(btn, BorderLayout.EAST);
+		
+		csPanel.add(csnPanel);
+		csPanel.add(cssPanel);
+		
+		
+		// east panel
+		ePanel = new JPanel(new BorderLayout());
+		taList = new JTextArea();
+		taList.setBorder(BorderFactory.createLineBorder(new Color(222, 233, 232), 3));
+		taList.setEditable(false);
+		ePanel.add(new JLabel("~ ~ ~ players list ~ ~ ~"), BorderLayout.NORTH);
+		ePanel.add(taList, BorderLayout.CENTER);
+		
+		
+		
+		// add 'em all onto cpanel
+		cPanel.add(taScreen, BorderLayout.CENTER);
+		cPanel.add(csPanel, BorderLayout.SOUTH);
 
 		
-		
+		// f
+		f.add(cPanel, BorderLayout.CENTER);
+		f.add(ePanel, BorderLayout.EAST);
 		
 		
 		

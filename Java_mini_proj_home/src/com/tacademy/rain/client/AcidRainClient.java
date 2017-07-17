@@ -107,7 +107,23 @@ public class AcidRainClient {
 	//////////////////////////////////////////////////////////////
 	
 	void insertUser(){
+
+		AcidRain rain = new AcidRain();
+		rain.getUsername();
+		rain.getIp();
+
+		// 3티어로 가자!
+		// 서버 소켓 연동
+		Message msg = new Message();
+		msg.setType(0);	// 0 : INSERT
+		msg.setAcidrain(rain);
 		
+		try {
+			oos.writeObject(msg);
+			System.out.println("전송 성공");
+		} catch (IOException e) {
+			System.out.println("오브젝트 전송 오류 " + e);
+		}
 	}
 	
 	void selectWords(){
@@ -168,6 +184,9 @@ public class AcidRainClient {
 	
 	
 	void gameStart(){
+		
+		
+		
 		list = new ArrayList<String>();
 		for(int i = 0; i < rList.size(); i++){
 			list.add(rList.get(i).getWord()); //받아온걸 넣어

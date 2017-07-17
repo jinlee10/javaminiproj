@@ -194,6 +194,7 @@ public class AcidRainClient {
 		csPanel.add(cssPanel);
 		
 		
+		
 		// east panel
 		ePanel = new JPanel(new BorderLayout());
 		taList = new JTextArea();

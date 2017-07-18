@@ -19,7 +19,6 @@ public class AcidRain implements Serializable{
 	private String username;
 	
 	
-	
 	// --------- 게터 세터 -----------------
 	
 	public int getWordidx() {
@@ -64,11 +63,6 @@ public class AcidRain implements Serializable{
 	public void setTypename(String typename) {
 		this.typename = typename;
 	}
-	
-	
-	
-	
-	
 	
 	
 	

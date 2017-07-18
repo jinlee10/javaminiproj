@@ -56,13 +56,9 @@ public class Com extends Thread{
 		}
 	}
 	
-	
-	
-	
-	
-	
-	
-	
+	// =========================================================
+	// 				C	R	U	D
+	// =========================================================
 	
 	void insertUser(AcidRain acidrain){
 		
@@ -75,13 +71,17 @@ public class Com extends Thread{
 		AcidRainDAO dao = new AcidRainDAO();
 		
 		Message msg = new Message();
-		
 		msg = dao.selectWords(acidrain);
+		msg.setType(101);//select
+		
+		System.out.println("msg는 X맨이..." + (msg == null ? "맞았습니다!" : "아니었습니다!"));
 		
 		try{
 			oos.writeObject(msg);
+			Thread.sleep(1000);
 		} catch(IOException e){
 			System.out.println("서버에서 받아온 acidrain 에러" + e);
+		} catch (InterruptedException e) {
 		}
 	}
 	
@@ -127,6 +127,9 @@ public class Com extends Thread{
 		Message msg = null;
 		int msgType = 0;
 		
+		//시작하자마자 이름 보내고 싶다
+		//server.sendUserList(this);
+		
 		try{
 			while(onAir){
 				msg = (Message) ois.readObject();
@@ -150,6 +153,7 @@ public class Com extends Thread{
 					break;
 				case 4:
 					selectWordTypeName(msg.getAcidrain());
+					server.sendUserList(this);
 					break;
 				case 9:
 					onAir = false;	//while을 벗어나야 catch걸리기전에 꺼버리지

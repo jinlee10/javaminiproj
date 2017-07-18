@@ -45,7 +45,9 @@ public class AcidRainClient {
 	//나의 점수와 이름
 	private int score;
 	private String name;
+	private String oldName;
 	private boolean nameNeverChanged = true;
+	private int myState;
 	
 	//상대방(들)의 점수
 	private ArrayList<AcidRain> others; //이름, 점수
@@ -53,7 +55,7 @@ public class AcidRainClient {
 	
 	//콘솔 출력 thread 테스트용 리스트와 쓰레드
 	private ArrayList<String> typeList;
-	private ArrayList<String> list;
+	private ArrayList<String> wList = new ArrayList<String>();
 	private ThreadTest ttest;
 	
 	//이미지 배경화면 설ㅈ어 관련
@@ -80,7 +82,7 @@ public class AcidRainClient {
 			String cmd = e.getActionCommand();
 			switch(cmd){
 			case "G":
-				gameStart();
+				isReady();
 				break;
 			case "E":	//단어입력후 엔터 or 버튼클릭
 				EnterWords();
@@ -114,8 +116,18 @@ public class AcidRainClient {
 	//				C	R	U	D	
 	//////////////////////////////////////////////////////////////
 	
+	// 아주 작고 귀여운(??) wList db->server->readerThread->여기까지 온거 저장용
+	public void assignWordList(ArrayList<String> wList){
+		System.out.println("101 word assign1");
+		this.wList = wList;
+		System.out.println("wList size: " + wList.size());
+		System.out.println("101 word assign2");
+		System.out.println("this.wList.size: " + this.wList.size());
+	}
+	
 	void insertUser(){
-
+		rename();
+		
 		String dummy = tfUsername.getText();
 		
 		AcidRain rain = new AcidRain();
@@ -136,7 +148,8 @@ public class AcidRainClient {
 		}
 	}
 	
-	ArrayList<String> selectWords(){
+	
+	void selectWords(){
 		// 0: insert 1:select 2:update 3:delete
 		int typeidx = 0;
 		
@@ -159,27 +172,14 @@ public class AcidRainClient {
 			oos.writeObject(msg);
 			System.out.println("MSG sent well!");
 			
-			msg = (Message) ois.readObject();
-			
-			ArrayList<AcidRain> alist = msg.getList();
-			
-			System.out.println("list size: " + alist.size());
-			
-			for(int i = 0; i < alist.size(); i++){
-				list.add(i, alist.get(i).getWord());
-			}
-			
 			//워드를 받았으면 
 		}catch(IOException e){
 			System.out.println("MSG sent error: " + e);
-		}catch(ClassNotFoundException e){
-			System.out.println("MSG receive error(select): " + e);
 		}
 		
 
 		
 		System.out.println("일단 여까지 왔어 4");
-		return list;
 	}
 	
 	void updateUserScore(){
@@ -188,6 +188,21 @@ public class AcidRainClient {
 	
 	void updateUserName(){
 		//유저이름 업데이트
+		AcidRain acidrain = new AcidRain(); //typeidx아니야!!
+		acidrain.setUsername(name);
+		
+		Message msg = new Message();
+		msg.setType(22);
+		msg.setNameString(oldName);
+		
+		try{
+			oos.writeObject(msg);
+			System.out.println("updateUserName MSG sent well");
+			
+		}catch(IOException e){
+			System.out.println("updateUserName MSG sent error: " + e);
+		}
+		
 	}
 	
 	void deleteUser(){
@@ -235,35 +250,53 @@ public class AcidRainClient {
 			typeList.add(i, rList.get(i).getTypename());
 			////////////////////////////////////////////////
 		}
-
-		
-		
 	}
 	
 	// ==========================================================
 	
-	
-	void gameStart(){
-//		if(!startFlag){
-//			
-//			
-//			
-//			startFlag = true;
-//			return;
-//		}
+	void isReady(){
+		myState = Message.IS_READY;
 		
-		list = new ArrayList<String>();
+		selectWords(); //oos로 보내고 readerThread가 읽어서 저장한다
+		System.out.println("(gameStart)wList size: " + wList.size());
 		
-		list = selectWords();				// ??????????????
-		
-		for(int i = 0; i < list.size(); i++){
-			System.out.println(list.get(i));
+		for(int i = 0; i < wList.size(); i++){
+			System.out.println(wList.get(i));
 		}
 		
 		System.out.println("일단 여까지 왔어 5(게임스타트메솓)");
 		
+		//Thread.sleep(1000);
 		
-		ap.setList(list);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		
+		ap.setList(wList);
+		
+//		try {
+//			Thread.sleep(1000);
+//		} catch (InterruptedException e) {
+//		}
+//		new Thread(){
+//			public void run(){
+//				while(true){
+//					if(ap.getWList().size() != 0){
+//						ap.startAniThread();
+//						System.out.println("break전");
+//						break;
+//					}
+//					
+//					try{
+//						System.out.println(wList.size());
+//						sleep(100);
+//					}catch(InterruptedException e){ }
+//				}
+//				System.out.println("while 벗어났어break후");
+//			}
+//		}.start();
+		
 		ap.startAniThread();
 		
 		//버튼 끝날때까지 비활성화
@@ -280,19 +313,16 @@ public class AcidRainClient {
 	
 	void EnterWords(){
 		String input = tfEntry.getText();
-		
 		//
 		//쓰레드가 돌아가고있을때를 체크하고 돌고있을대만 아래 메소드를
 		//실행하고 싶으면 어떻게할까? ==> 몰라 이눔아
 		//
-		
 		if(input == null){	//널이면 리턴
 			return;
 		}
 		ap.matchWord(input);	//텍스트를 받아온 후 보내버린다(비교하러)
 		tfEntry.setText("");
 	}
-	
 	
 	
 	public AcidRainClient(){
@@ -307,16 +337,19 @@ public class AcidRainClient {
 			// 오브젝트로 통신하기위한 magical sequence
 			oos.flush();
 			ois = new ObjectInputStream( s.getInputStream() );
-			
 			//wordType 갖고와서 넣어준다
 			selectWordTypeName();
-			
+			System.out.println("readerThread 시작전");
 			////////// READER THREAD 시작한다 //////////
 			new ReaderThreadClient(this, ois).start();
+			System.out.println("readerThread 시작함!");
+			
+			myState = Message.IS_CONNEDTED;
 			
 		}catch(IOException e){
 			System.out.println("클라 접속 오류: " + e);
 		}
+		
 		
 	}
 
@@ -388,40 +421,34 @@ public class AcidRainClient {
 	void rename(){ //이거랑 update랑 insert랑 연결시켜야되나?
 		//nameNeverChange가 true면 insert랑 연결, 아니면 updateName이랑 연결
 		
+		oldName = name;
 		name = tfUsername.getText().trim();
-		if(name.isEmpty()) return;
 		
-		if(nameNeverChanged){
-			//인서트랑 관련있게
-			
-		} else{
-			sendRename(name);
-		}
-		
+		updateUserName(oldName, name);
+
 		setFrameName(name);
 		
 		//다 끝났으면 다시 공백으로
 		tfUsername.setText("");
+		
+		if(name.isEmpty()) return;
+		updateUserName();
 	}
+	
+	//이름보여줘
+	public void showUserList(String[] nameList){
+		String[] list = nameList;
+		for(String name: list){
+			taList.append(name + "\n");
+		}
+	}
+	
 	
 	public void setFrameName(String name){
 		this.name = name;
 		f.setTitle(String.format("%s's excitement packed Weak Acid Rain (o^0^)==o", this.name));
 		
 	}
-	
-	void sendRename(String name){ //이름업데이트
-		try{
-			Message msg = new Message();
-			msg.setType(22);		// updateUName은 프로토콜 외쳐!EE!
-			msg.setNameString(name);
-			oos.writeObject(msg);
-			
-		}catch(IOException e){
-			
-		}
-	}
-
 	
 	
 	void setGUI(){
@@ -486,7 +513,7 @@ public class AcidRainClient {
 		// east panel
 		ePanel = new JPanel(new BorderLayout());
 		taList = new JTextArea();
-		taList.setBorder(BorderFactory.createLineBorder(new Color(222, 233, 232), 3));
+		taList.setBorder(BorderFactory.createLineBorder(new Color(222, 233, 232), 7));
 		taList.setEditable(false);
 		
 		btnStart = new JButton("START GAME");
@@ -568,6 +595,5 @@ public class AcidRainClient {
 	public void setScore(int score) {
 		this.score = score;
 	}
-	
 	
 }

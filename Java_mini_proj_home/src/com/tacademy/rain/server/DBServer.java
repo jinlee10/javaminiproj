@@ -15,9 +15,8 @@ public class DBServer {
 	ServerSocket ss;
 	Socket s;
 	
-	
-	// 유저리스트 쏘기
-	public void sendUserList(Com com){
+	//유저리스트 구하기
+	public String getUserList(){
 		String userList = "";
 		StringBuilder sb = new StringBuilder();
 		
@@ -28,10 +27,16 @@ public class DBServer {
 		userList = sb.toString();
 		userList.substring(0, userList.length() - 1); //마지막한자에서 1뺀만큼( , 이거)
 		
+		return userList;
+	}
+	
+	
+	// 유저리스트 쏘기
+	public void sendUserList(Com com){
 		// 서버 -> 클라에서 보낼때 약속을 하자
 		
 		// 각각 com을통해 보내야겠지? 뭘? 사용자 정보 리스트!
-		com.sendMessage(5, userList);
+		com.sendMessage(11, getUserList());
 	}
 	
 	// 유저 나갔을떄 arraylist에서 com객체 제거하기
@@ -43,6 +48,13 @@ public class DBServer {
 	public void sendMsg2All(int protocol, String str){
 		for(Com cm : comList){
 			cm.sendMessage(6, str);
+		}
+	}
+	
+	public void sendUserList2All(int protocol, String str){
+		String ul = getUserList();
+		for(Com cm : comList){
+			cm.sendMessage(11, ul);
 		}
 	}
 	

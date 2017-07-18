@@ -13,8 +13,8 @@ import javax.swing.JPanel;
 public class AcidRainClientPanel extends JPanel{
 	
 	private ArrayList<String> typenameList;	//타입이름 저장용 리스트
-	private ArrayList<String> list;	//단어 저장용 리스트
-	private ArrayList<DrawWord> wList;	//단어 + x, y coord 저장용 리스트
+	private ArrayList<String> wList;	//단어 저장용 리스트
+	private ArrayList<DrawWord> dwList;	//단어 + x, y coord 저장용 리스트
 	
 	
 	private int xCoord, yCoord = -15;	//초기값 
@@ -41,15 +41,16 @@ public class AcidRainClientPanel extends JPanel{
 		 this.client = client;
 	}
 	
-	public void setList(ArrayList<String> list){
-		wList = new ArrayList<DrawWord>();
+	public void setList(ArrayList<String> list){ //받아온 리스트
+		dwList = new ArrayList<DrawWord>();
+		System.out.println("list size: " + list.size());
 		
 		System.out.println("list: " + (list == null ? "null" : "not null"));
 		for(int i = 0; i < list.size(); i++){
 			System.out.println(list.get(i));
 		}
 		
-		this.list = list;
+		this.wList = list;
 		
 		testAssignWList();
 	}
@@ -69,9 +70,9 @@ public class AcidRainClientPanel extends JPanel{
 	
 	//list 비교용
 	public void matchWord(String s){
-		for(int i = 0; i < wList.size(); i++){
-			if(s.equals(wList.get(i).getText())){
-				wList.remove(i);
+		for(int i = 0; i < dwList.size(); i++){
+			if(s.equals(dwList.get(i).getText())){
+				dwList.remove(i);
 				System.out.println(s + " 입력!");
 			}
 			checkEmptyList();
@@ -80,10 +81,10 @@ public class AcidRainClientPanel extends JPanel{
 	
 	//바닥에 닿으면?
 	public void wordTouchedHeight(){
-		for(int i = 0; i < wList.size(); i++){
-			if(wList.get(i).getY() >= getHeight()){
-				System.out.println(wList.get(i).getText()+ " 땅에 닿음!");
-				wList.remove(i);
+		for(int i = 0; i < dwList.size(); i++){
+			if(dwList.get(i).getY() >= getHeight()){
+				System.out.println(dwList.get(i).getText()+ " 땅에 닿음!");
+				dwList.remove(i);
 			}
 			checkEmptyList();
 		}
@@ -94,7 +95,7 @@ public class AcidRainClientPanel extends JPanel{
 	//list empty 테스트용
 	public void checkEmptyList(){
 		// 리스트 없을시 리턴
-		if(wList.isEmpty()){
+		if(dwList.isEmpty()){
 			System.out.println("텅빔");
 			repaint();
 			client.gameIsOver();
@@ -103,17 +104,17 @@ public class AcidRainClientPanel extends JPanel{
 	}
 	
 	public void testAssignWList(){
-		for(int i = 0; i < this.list.size(); i++){
+		for(int i = 0; i < this.wList.size(); i++){
 			xCoord = random.nextInt(500);
 			yCoord = random.nextInt(600) - 600; //맞나?
-			deltaY = random.nextInt(50) + 20;
+			deltaY = random.nextInt(10) + 10;
 			
 			//alignment : 정렬
 			
-			word = new DrawWord(xCoord, yCoord, this.list.get(i), deltaY);
-			wList.add(word);
+			word = new DrawWord(xCoord, yCoord, this.wList.get(i), deltaY);
+			dwList.add(word);
 			
-			System.out.println(wList.get(i).getText());
+			System.out.println(dwList.get(i).getText());
 		}			
 	}
 	
@@ -144,10 +145,10 @@ public class AcidRainClientPanel extends JPanel{
 	}
 	
 	public void drawWords(int dy){
-		for(int i = 0; i < wList.size(); i++){
-			DrawWord temp = wList.get(i);
+		for(int i = 0; i < dwList.size(); i++){
+			DrawWord temp = dwList.get(i);
 			temp.yAxisMover();
-			wList.set(i, temp);
+			dwList.set(i, temp);
 		}
 	}
 	
@@ -163,10 +164,10 @@ public class AcidRainClientPanel extends JPanel{
 		
 		g.setFont(font);
 		g.setColor(new Color(200, 170, 220));
-		if(wList != null){
-			for(int i = 0; i < wList.size(); i++){
-				g.drawString(wList.get(i).getText(), 
-						wList.get(i).getX(), wList.get(i).getY());
+		if(dwList != null){
+			for(int i = 0; i < dwList.size(); i++){
+				g.drawString(dwList.get(i).getText(), 
+						dwList.get(i).getX(), dwList.get(i).getY());
 			}
 		}
 		
@@ -189,8 +190,8 @@ public class AcidRainClientPanel extends JPanel{
 		this.level = level;
 	}
 
-	public ArrayList<String> getList() {
-		return list;
+	public ArrayList<String> getWList() {
+		return wList;
 	}
 
 	

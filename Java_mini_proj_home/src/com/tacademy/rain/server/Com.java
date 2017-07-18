@@ -91,10 +91,10 @@ public class Com extends Thread{
 		dao.updateUserScore(acidrain);
 	}
 	
-	void updateUserName(AcidRain acidrain){
+	void updateUserName(AcidRain acidrain, String newName){
 		AcidRainDAO dao = new AcidRainDAO();
 		
-		dao.updateUserName(acidrain);
+		dao.updateUserName(acidrain, newName);
 	}
 	
 	void deleteUser(AcidRain acidrain){
@@ -110,9 +110,12 @@ public class Com extends Thread{
 		Message msg = null;
 		
 		msg = dao.selectWordTypeName(acidrain);
-		
+
+		System.out.println("sql selecttypename 메소드 안이야 1");
 		try{
 			oos.writeObject(msg);
+			System.out.println(msg.getList().size());
+			System.out.println("sql selecttypename 메소드 안이야 2");
 		}catch(IOException e){
 			System.out.println("서버에서 받아온 typename에러 : " + e);
 		}
@@ -130,6 +133,8 @@ public class Com extends Thread{
 		//시작하자마자 이름 보내고 싶다
 		//server.sendUserList(this);
 		
+		//server.sendUserList2All(11);
+		
 		try{
 			while(onAir){
 				msg = (Message) ois.readObject();
@@ -146,16 +151,20 @@ public class Com extends Thread{
 					updateUserScore(msg.getAcidrain());
 					break;
 				case 22:
-					updateUserName(msg.getAcidrain());
+					updateUserName(msg.getAcidrain(), msg.getNameString());
+//					server.sendUserList2All(11);
 					break;
 				case 3:
 					deleteUser(msg.getAcidrain());
 					break;
 				case 4:
 					selectWordTypeName(msg.getAcidrain());
-					server.sendUserList(this);
+//					server.sendUserList(this);
+					server.sendUserList2All(11);
 					break;
 				case 9:
+					server.exitcom(this);
+					server.sendUserList2All(11);
 					onAir = false;	//while을 벗어나야 catch걸리기전에 꺼버리지
 					break;
 				}//switch문 끝

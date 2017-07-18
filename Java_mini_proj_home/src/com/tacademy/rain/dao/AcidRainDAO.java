@@ -123,12 +123,12 @@ public class AcidRainDAO {
 	}
 	
 	//update user name
-	public void updateUserName(AcidRain acidrain){
+	public void updateUserName(AcidRain acidrain, String newName){
 
 		Connection conn = null; //import할때 java.sql.Connection해야대!!!!
 		PreparedStatement stmt = null;
 		
-		String newName = "";
+		//String newName = "";
 		
 		try{
 			conn = JDBCUtil.getConnection();
@@ -211,7 +211,7 @@ public class AcidRainDAO {
 				rain = new AcidRain();
 				rain.setTypename(rst.getString(1));
 				list.add(rain);	////// ADD를해야지
-				System.out.println(rst.getString(1));	//나중에 인덱스 이름 뽑아보기!!!
+				//System.out.println(rst.getString(1));	//나중에 인덱스 이름 뽑아보기!!!
 				System.out.println(rain.getTypename());
 			}
 			

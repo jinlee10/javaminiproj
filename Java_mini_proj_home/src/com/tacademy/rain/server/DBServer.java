@@ -5,8 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import com.tacademy.rain.vo.Message;
-
 public class DBServer {
 	
 	//매번 만들어지는 클라이언트에 대응하는 소켓을 가진 Comm쓰레드
@@ -51,7 +49,7 @@ public class DBServer {
 		}
 	}
 	
-	public void sendUserList2All(int protocol, String str){
+	public void sendUserList2All(int protocol){
 		String ul = getUserList();
 		for(Com cm : comList){
 			cm.sendMessage(11, ul);
@@ -81,7 +79,7 @@ public class DBServer {
 			try{
 				System.out.println("서버가 접속을 대기중이다");
 				s = ss.accept();
-				remoteIP = s.getInetAddress().getHostAddress();
+				remoteIP = "127.0.0.1";
 				
 				System.out.println(remoteIP + "가 서버에 접속하였다");
 				

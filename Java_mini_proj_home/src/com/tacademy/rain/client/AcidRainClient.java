@@ -90,27 +90,30 @@ public class AcidRainClient {
 			case "T":	//transfer chat : 챗 보내기 // no need 4 now
 				//beginGame();
 				break;
+			case "I":
+				configNameInsertUpdate();
+				break;
 				
 			//////////////////////////////////////////////////////////
 			// CRUD //
-			case "I":
-				insertUser();
-				break;
-			case "S":
-				selectWords();	
-				break;
-			case "U":
-				updateUserScore();	
-				break;
-			case "D":
-				deleteUser();	 
-				break;
-			case "N":
-				selectWordTypeName();	//readerThread시작전에만드는거
-				break;
+//			insertUser();
+//			selectWords();	
+//			updateUserScore();	
+//			updateUserName();
+//			deleteUser();	 
+//			selectWordTypeName();	//readerThread시작전에만드는거
 			}
 		}
 	};
+	public void configNameInsertUpdate(){
+		if(nameNeverChanged){
+			insertUser();
+			nameNeverChanged = !nameNeverChanged;
+		}else{
+			rename();
+		}
+		
+	}
 	
 	//////////////////////////////////////////////////////////////
 	//				C	R	U	D	
@@ -126,7 +129,6 @@ public class AcidRainClient {
 	}
 	
 	void insertUser(){
-		rename();
 		
 		String dummy = tfUsername.getText();
 		
@@ -193,7 +195,8 @@ public class AcidRainClient {
 		
 		Message msg = new Message();
 		msg.setType(22);
-		msg.setNameString(oldName);
+		msg.setAcidrain(acidrain);
+		msg.setNameString(name);
 		
 		try{
 			oos.writeObject(msg);
@@ -228,6 +231,7 @@ public class AcidRainClient {
 			msg = (Message) ois.readObject();
 			
 			rList = msg.getList();
+			System.out.println("rList is empty?" + (rList == null ? "O" : "X"));
 			
 			for(int i = 0; i < rList.size(); i++){
 				tempR = rList.get(i).getTypename();
@@ -329,10 +333,9 @@ public class AcidRainClient {
 		
 		setGUI();
 		
-		
 		//클라 시작 즉시 서버에 접속하여 DB와 통신 준비한다
 		try{
-			s = new Socket(getLocalIP(), 12345);
+			s = new Socket("127.0.0.1", 12345);
 			oos = new ObjectOutputStream( s.getOutputStream() );
 			// 오브젝트로 통신하기위한 magical sequence
 			oos.flush();
@@ -350,18 +353,17 @@ public class AcidRainClient {
 			System.out.println("클라 접속 오류: " + e);
 		}
 		
-		
 	}
 
 	public String getLocalIP() {
 		
 		String localIP = "127.0.0.1";
 		
-		try {
-			localIP = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e) {
-			System.out.println("Local IP 얻기 실패" + e);
-		}
+//		try {
+//			localIP = InetAddress.getLocalHost().getHostAddress();
+//		} catch (UnknownHostException e) {
+//			System.out.println("Local IP 얻기 실패" + e);
+//		}
 		
 		return localIP;
 		
@@ -424,7 +426,7 @@ public class AcidRainClient {
 		oldName = name;
 		name = tfUsername.getText().trim();
 		
-		updateUserName(oldName, name);
+		//updateUserName(name);
 
 		setFrameName(name);
 		
@@ -437,6 +439,8 @@ public class AcidRainClient {
 	
 	//이름보여줘
 	public void showUserList(String[] nameList){
+		//리스트 일단 지워놓고
+		taList.setText("");
 		String[] list = nameList;
 		for(String name: list){
 			taList.append(name + "\n");

@@ -70,7 +70,7 @@ public class ReaderThreadClient extends Thread{
 //		return list;
 //	}
 	
-	public void selectWords(Message msg){
+	public ArrayList<String> selectWords(Message msg){
 		System.out.println("readerTHread의 selectWords프로토콜타고까지 왔다 1");
 		
 		Message msgTemp = new Message();
@@ -89,11 +89,9 @@ public class ReaderThreadClient extends Thread{
 			tempWordList.add(aList.get(i).getWord()); //템프 string리스트 만들고 값 받는다
 		}
 		
-		//무사히 왔으면 클라 리스트에 넣어줘라
-		System.out.println("단어들을 wList에 집어넣습니다");
-		client.assignWordList(tempWordList);
-		System.out.println("단어들을 wList에 집어넣었나봅니다");
 		
+		
+		return tempWordList;
 	}
 	
 	
@@ -101,6 +99,7 @@ public class ReaderThreadClient extends Thread{
 	public void run(){
 		
 		Message msg = null;
+		ArrayList<String> wordList = null;
 		int msgType = 0;
 		try{
 			while(true){
@@ -112,7 +111,11 @@ public class ReaderThreadClient extends Thread{
 				switch(msgType){
 				case 101:
 					System.out.println("protocol 101 received!");
-					selectWords(msg);
+					wordList = selectWords(msg);
+					//무사히 왔으면 클라 리스트에 넣어줘라
+					System.out.println("단어들을 wList에 집어넣습니다");
+					client.assignWordList(wordList);
+					System.out.println("단어들을 wList에 집어넣었나봅니다");
 					break;
 				case 11:
 					String[] nameList = msg.getuListString().split(",");

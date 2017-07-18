@@ -15,6 +15,8 @@ public class Com extends Thread{
 	ObjectInputStream ois;
 	ObjectOutputStream oos;
 	
+	boolean onAir = true;
+	
 	public Com(Socket s){
 		this.s = s;
 		
@@ -88,7 +90,7 @@ public class Com extends Thread{
 		Message msg = null;
 		
 		try{
-			while(true){
+			while(onAir){
 				msg = (Message) ois.readObject();
 				
 				switch(msg.getType()){
@@ -107,9 +109,35 @@ public class Com extends Thread{
 				case 4:
 					selectWordTypeName(msg.getAcidrain());
 					break;
-				}
+				case 9:
+					onAir = false;	//while을 벗어나야 catch걸리기전에 꺼버리지
+					break;
+				}//switch문 끝
 				
+			}// while문 끝
+			
+
+			if(oos != null){
+				try{
+					oos.close();	//출력 객체 종료
+				}catch(IOException e){
+				}
 			}
+
+			if(ois != null){
+				try{
+					ois.close();	//입력 객체 종료
+				}catch(IOException e){
+				}
+			}
+			if(s != null){
+				try{
+					s.close();		//소켓 객체 종료
+				}catch(IOException e){
+				}
+			}
+			
+
 		} catch (IOException e) {
 			System.out.println(e);
 		} catch (ClassNotFoundException e) {

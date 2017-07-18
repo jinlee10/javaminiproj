@@ -8,6 +8,8 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -497,7 +500,28 @@ public class AcidRainClient {
 		
 		
 		
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		f.addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				int opNum = JOptionPane.showConfirmDialog(f, "Wnat to Exit?", "Exit Window", JOptionPane.OK_CANCEL_OPTION);
+				if(opNum == JOptionPane.OK_OPTION){
+					f.setVisible(false);
+					
+					Message msg = new Message();
+					msg.setType(9);
+					
+					try {
+						oos.writeObject(msg);
+					} catch (IOException e1) {
+					}
+					
+					System.exit(0);
+				}
+			}
+			
+		});
 		f.setVisible(true);
 	}
 	

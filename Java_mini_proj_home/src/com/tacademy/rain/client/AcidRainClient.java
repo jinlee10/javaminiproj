@@ -35,14 +35,19 @@ public class AcidRainClient {
 	
 	private JFrame f;
 	private JPanel cPanel, csPanel, csnPanel, cssPanel,
-			ePanel, ecPanel, ecnPanel, esPanel; 
-	private JComboBox<String> cbox;
-	private JTextField tfEntry, tfChat;	//단어입력란, (추후 추가할)챗 입력란
+			ePanel, ecPanel, ecnPanel, esPanel,
+			nPanel, nwPanel;
+	private JTextField tfTypeSelect;
+	private JTextField tfEntry, tfChat, tfUsername;	//단어입력란, (추후 추가할)챗 입력란
 	private MyTextArea taScreen;			//게임 본화면 표시할 text area
-	private JTextArea taList;			//테스트용 ta
-	private JButton btn, btnStart;
+	private JTextArea taList, taTypename;			//테스트용 ta
+	private JButton btn, btnSignUp, btnStart;
+	
+	//나의 점수
+	private int score;
 	
 	//콘솔 출력 thread 테스트용 리스트와 쓰레드
+	private ArrayList<String> typeList;
 	private ArrayList<String> list;
 	private ThreadTest ttest;
 	
@@ -59,6 +64,7 @@ public class AcidRainClient {
 	private ObjectOutputStream oos;
 	
 	//쓰레드
+	private boolean startFlag = false;
 	
 	
 	//JDBC 3 tier 연동
@@ -108,9 +114,11 @@ public class AcidRainClient {
 	
 	void insertUser(){
 
+		String dummy = tfUsername.getText();
+		
 		AcidRain rain = new AcidRain();
-		rain.getUsername();
-		rain.getIp();
+		rain.setUsername(dummy);
+		rain.setIp(getLocalIP());
 
 		// 3티어로 가자!
 		// 서버 소켓 연동
@@ -126,44 +134,95 @@ public class AcidRainClient {
 		}
 	}
 	
-	void selectWords(){
+	ArrayList<String> selectWords(){
 		// 0: insert 1:select 2:update 3:delete
+		int typeidx = 0;
+		
+		
+		for(int i = 0; i < typeList.size(); i++){
+			if(tfTypeSelect.getText().equals(typeList.get(i))){
+				typeidx = i + 1;
+			}
+		}
+		
 		
 		AcidRain acidrain = new AcidRain();
 		
 		acidrain.setTypeidx(1); //select
+		acidrain.setTypeidx(typeidx);
 		
+		Message msg = new Message();
+		msg.setType(1);
+		msg.setAcidrain(acidrain);
+		
+		AcidRain train = null;//템프
+		
+		String[] words = null;	//템프
+		
+		try{
+			oos.writeObject(msg);
+			System.out.println("MSG sent well!");
+			
+			msg = (Message) ois.readObject();
+			
+			System.out.println("일단 여까지 왔어 1");
+			
+			ArrayList<AcidRain> alist = msg.getList();
+			
+			System.out.println("일단 여까지 왔어 2");
+			System.out.println("list size: " + alist.size());
+			
+			for(int i = 0; i < alist.size(); i++){
+				list.add(i, alist.get(i).getWord());
+			}
+
+			
+			System.out.println("일단 여까지 왔어 3");
+			
+			//워드를 받았으면 
+		}catch(IOException e){
+			System.out.println("MSG sent error: " + e);
+		}catch(ClassNotFoundException e){
+			System.out.println("MSG receive error(select): " + e);
+		}
+		
+
+		
+		System.out.println("일단 여까지 왔어 4");
+		return list;
 	}
 	
 	void updateUserScore(){
-		
+		//유저업데이트
 	}
 	
 	void deleteUser(){
-		
+		//유저딜리트
 	}
 	
 	// default word type
 	void selectWordTypeName(){
 		AcidRain acidrain = new AcidRain();
-		acidrain.setTypeidx(1);//select
+		acidrain.setTypeidx(4);//select
 		//acidrain.set
 		
 		Message msg = new Message();
-		msg.setType(1);	//select
+		msg.setType(4);	//select type name
 		msg.setAcidrain(acidrain);//객체화시켜서 보낼거야
 		
-		AcidRain tempR = null;//템프
+		String tempR = null;//템프
 		
 		try{
 			oos.writeObject(msg);	// 보드말고 메세지로 객체화시켜보낸다
 			System.out.println("MSG sent well!");
 			
 			msg = (Message) ois.readObject();
+			
 			rList = msg.getList();
 			
 			for(int i = 0; i < rList.size(); i++){
-				tempR = rList.get(i);
+				tempR = rList.get(i).getTypename();
+				System.out.println("tempR : " + tempR);
 			}
 			
 		} catch(IOException e){
@@ -172,10 +231,17 @@ public class AcidRainClient {
 			System.out.println("msg 잘못 받음! selectDefault error: " + e);
 		}
 		
+		typeList = new ArrayList<String>();
 		
-		
-		
-		
+		for(int i = 0; i < rList.size(); i++){
+			System.out.println(rList.get(i).getTypename());
+			taTypename.append(rList.get(i).getTypename() + "\n");
+			
+			////////////////////////////////////////////////
+			typeList.add(i, rList.get(i).getTypename());
+			////////////////////////////////////////////////
+		}
+
 		
 		
 	}
@@ -184,13 +250,24 @@ public class AcidRainClient {
 	
 	
 	void gameStart(){
-		
-		
+//		if(!startFlag){
+//			
+//			
+//			
+//			startFlag = true;
+//			return;
+//		}
 		
 		list = new ArrayList<String>();
-		for(int i = 0; i < rList.size(); i++){
-			list.add(rList.get(i).getWord()); //받아온걸 넣어
+		
+		list = selectWords();
+		
+		for(int i = 0; i < list.size(); i++){
+			System.out.println(list.get(i));
 		}
+		
+		System.out.println("일단 여까지 왔어 5(게임스타트메솓)");
+		
 		
 		ap.setList(list);
 		ap.startAniThread();
@@ -224,8 +301,6 @@ public class AcidRainClient {
 	}
 	
 	
-
-	//MyTextArea taScreen;// = new MyTextArea();	//위의 JTextArea를 대신함
 
 	/////이미지 출력을 위한 커스텀 textArea
 	class MyTextArea extends JTextArea{
@@ -272,11 +347,14 @@ public class AcidRainClient {
 			oos = new ObjectOutputStream( s.getOutputStream() );
 			// 오브젝트로 통신하기위한 magical sequence
 			oos.flush();
+			ois = new ObjectInputStream( s.getInputStream() );
 			
 		}catch(IOException e){
 			System.out.println("클라 접속 오류: " + e);
 		}
 		
+		//wordType 갖고와서 넣어준다
+		selectWordTypeName();
 	}
 
 	public String getLocalIP() {
@@ -310,6 +388,21 @@ public class AcidRainClient {
 		
 		f = new JFrame("Weak Adic Rain Game Client (o^0^)==o");
 		f.setBounds(new Rectangle(0,0,700,600));
+		
+		//north panel
+		nPanel = new JPanel(new BorderLayout());
+		nwPanel = new JPanel(new BorderLayout());
+		tfUsername = new JTextField();
+		nwPanel.add(new JLabel(" NAME "), BorderLayout.WEST);
+		nwPanel.add(tfUsername, BorderLayout.CENTER);
+		btnSignUp = new JButton("등록");
+		btnSignUp.setActionCommand("I");
+		btnSignUp.addActionListener(al);
+		
+		nPanel.add(nwPanel, BorderLayout.CENTER);
+		nPanel.add(btnSignUp, BorderLayout.EAST);
+		
+		
 		
 		// center panel
 		cPanel = new JPanel(new BorderLayout());	
@@ -371,14 +464,14 @@ public class AcidRainClient {
 		ecnPanel.add(taList, BorderLayout.CENTER);
 		
 		ecPanel.add(ecnPanel);
-		ecPanel.add(new JTextArea());
+		taTypename = new JTextArea();
+		ecPanel.add(taTypename);
 		
 		esPanel = new JPanel(new GridLayout(2, 1));
 		esPanel.setBorder(BorderFactory.createLineBorder(new Color(232, 240, 220), 3));
 		
-		cbox = new JComboBox<String>();
-		
-		esPanel.add(cbox);
+		tfTypeSelect = new JTextField();
+		esPanel.add(tfTypeSelect);
 		esPanel.add(btnStart);
 		
 		ePanel.add(ecPanel, BorderLayout.CENTER);
@@ -398,6 +491,7 @@ public class AcidRainClient {
 
 		
 		// f
+		f.add(nPanel, BorderLayout.NORTH);
 		f.add(cPanel, BorderLayout.CENTER);
 		f.add(ePanel, BorderLayout.EAST);
 		
@@ -412,6 +506,16 @@ public class AcidRainClient {
 	}
 	
 	public static void main(String[] args){
-		new AcidRainClient();
+		new AcidRainClient(); //
 	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+	
+	
 }

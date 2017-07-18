@@ -22,7 +22,7 @@ public class AcidRainDAO {
 	
 	String deleteSQL = "delete from users where username = ?;";
 	
-	String selectTypeNameSQL = "SELECT wordtype.typename FROM wordtype;";
+	String selectTypeNameSQL = "SELECT typename FROM wordtype WHERE 1 = ?;";
 	
 	public void insertUser(AcidRain acidrain){
 		
@@ -79,6 +79,7 @@ public class AcidRainDAO {
 			while(rst.next()){
 				rain = new AcidRain();
 				rain.setWord(rst.getString("word"));
+				list.add(rain);
 			}
 			
 			msg.setList(list);
@@ -151,7 +152,9 @@ public class AcidRainDAO {
 
 	// select word typename
 	public Message selectWordTypeName(AcidRain acidrain){
+
 		
+		System.out.println("dao 여기까진 왔다 1");
 		Connection conn = null; //import할때 java.sql.Connection해야대!!!!
 		PreparedStatement stmt = null;
 
@@ -164,13 +167,17 @@ public class AcidRainDAO {
 		
 		try{
 			conn = JDBCUtil.getConnection();
-			stmt = conn.prepareStatement(selectSQL);
-			stmt.setInt(1, acidrain.getTypeidx());
+			stmt = conn.prepareStatement(selectTypeNameSQL);
+			stmt.setString(1, "1");
 			
 			// exe query: select하나만
 			// exe update: insert, delete, update
 			
 			ResultSet rst = stmt.executeQuery();
+			
+			System.out.println("resultset: " + (rst == null ? "null" : "not null"));
+			
+			System.out.println("dao 여기까진 왔다 2");
 			
 			msg = new Message();
 			list = new ArrayList<AcidRain>();
@@ -178,10 +185,16 @@ public class AcidRainDAO {
 			
 			while(rst.next()){
 				rain = new AcidRain();
-				rain.setWord(rst.getString("typename"));
+				rain.setTypename(rst.getString(1));
+				list.add(rain);	////// ADD를해야지
+				System.out.println(rst.getString(1));	//나중에 인덱스 이름 뽑아보기!!!
+				System.out.println(rain.getTypename());
 			}
 			
 			msg.setList(list);
+			
+
+			System.out.println("dao 여기까진 왔다 3");
 			
 		}catch(SQLException e){
 			System.out.println("selecttypenameSQL error: " + e);

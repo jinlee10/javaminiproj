@@ -66,8 +66,17 @@ public class Com extends Thread{
 	
 	void selectWordTypeName(AcidRain acidrain){
 		AcidRainDAO dao = new AcidRainDAO();
+		System.out.println("com도 여기까지 왔다 1");
 		
-		dao.selectWordTypeName(acidrain);
+		Message msg = null;
+		
+		msg = dao.selectWordTypeName(acidrain);
+		
+		try{
+			oos.writeObject(msg);
+		}catch(IOException e){
+			System.out.println("서버에서 받아온 typename에러 : " + e);
+		}
 	}
 	
 	

@@ -21,7 +21,7 @@ public class DBServer {
 		
 		Socket s = null;
 		
-		while(true){
+		while(true){ 
 			try{
 				System.out.println("서버가 접속을 대기중이다");
 				s = ss.accept();

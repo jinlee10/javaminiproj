@@ -13,7 +13,7 @@ public class AcidRain implements Serializable{
 	private boolean wordflag; //단어삭제플래그
 	private String ip;
 	
-	//private String wordtype;	//단어타입
+	private String typename;	//단어타입
 	
 	//사용자
 	private String username;
@@ -57,6 +57,12 @@ public class AcidRain implements Serializable{
 	}
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	public String getTypename() {
+		return typename;
+	}
+	public void setTypename(String typename) {
+		this.typename = typename;
 	}
 	
 	

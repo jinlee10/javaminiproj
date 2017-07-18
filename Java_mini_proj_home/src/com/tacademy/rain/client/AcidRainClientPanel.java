@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 public class AcidRainClientPanel extends JPanel{
 	
+	private ArrayList<String> typenameList;	//타입이름 저장용 리스트
 	private ArrayList<String> list;	//단어 저장용 리스트
 	private ArrayList<DrawWord> wList;	//단어 + x, y coord 저장용 리스트
 	
@@ -40,6 +41,11 @@ public class AcidRainClientPanel extends JPanel{
 	
 	public void setList(ArrayList<String> list){
 		wList = new ArrayList<DrawWord>();
+		
+		System.out.println("list: " + (list == null ? "null" : "not null"));
+		for(int i = 0; i < list.size(); i++){
+			System.out.println(list.get(i));
+		}
 		
 		this.list = list;
 		

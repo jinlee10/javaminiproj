@@ -153,3 +153,5 @@ select * from users;
 delete from users where username = '김두한';
 
 SELECT wordtype.typename FROM wordtype;
+
+SELECT typename FROM wordtype WHERE 1 = 1;

@@ -20,6 +20,8 @@ public class AcidRainDAO {
 	
 	String updateSQL = "update users set userscoretot = userscoretot + ? where username = ?;";
 	
+	String updateNameSQL = "update users set username = ? where username = ?;";
+	
 	String deleteSQL = "delete from users where username = ?;";
 	
 	String selectTypeNameSQL = "SELECT typename FROM wordtype WHERE 1 = ?;";
@@ -115,6 +117,28 @@ public class AcidRainDAO {
 		}catch(SQLException e){
 			System.out.println("acidrain update error: " + e); //디버깅용
 		}finally{
+			JDBCUtil.close(stmt, conn);
+		}
+		
+	}
+	
+	//update user name
+	public void updateUserName(AcidRain acidrain){
+
+		Connection conn = null; //import할때 java.sql.Connection해야대!!!!
+		PreparedStatement stmt = null;
+		
+		String newName = "";
+		
+		try{
+			conn = JDBCUtil.getConnection();
+			stmt = conn.prepareStatement(updateNameSQL);
+			stmt.setString(1, newName);
+			stmt.setString(2, acidrain.getUsername());
+			
+		} catch(SQLException e){
+			
+		} finally{
 			JDBCUtil.close(stmt, conn);
 		}
 		

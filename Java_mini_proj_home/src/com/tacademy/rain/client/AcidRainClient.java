@@ -2,7 +2,6 @@ package com.tacademy.rain.client;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -10,8 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.DataInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,11 +16,10 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -42,12 +38,18 @@ public class AcidRainClient {
 			nPanel, nwPanel;
 	private JTextField tfTypeSelect;
 	private JTextField tfEntry, tfChat, tfUsername;	//단어입력란, (추후 추가할)챗 입력란
-	private MyTextArea taScreen;			//게임 본화면 표시할 text area
+//	private MyTextArea taScreen;			//게임 본화면 표시할 text area
 	private JTextArea taList, taTypename;			//테스트용 ta
 	private JButton btn, btnSignUp, btnStart;
 	
-	//나의 점수
+	//나의 점수와 이름
 	private int score;
+	private String name;
+	private boolean nameNeverChanged = true;
+	
+	//상대방(들)의 점수
+	private ArrayList<AcidRain> others; //이름, 점수
+	private HashMap<String, Integer> users;
 	
 	//콘솔 출력 thread 테스트용 리스트와 쓰레드
 	private ArrayList<String> typeList;
@@ -57,9 +59,6 @@ public class AcidRainClient {
 	//이미지 배경화면 설ㅈ어 관련
 	private Image img;
 	private AcidRainClientPanel ap;
-
-	private String[] words = {"무지개", "멱살", "줄넘기", "기지개", 
-	"게살버거", "새우버거", "모니터", "프린터", "자바", "스프링"};
 	
 	// 통신 관련 변수
 	private Socket s;
@@ -105,7 +104,7 @@ public class AcidRainClient {
 				deleteUser();	 
 				break;
 			case "N":
-				selectWordTypeName();
+				selectWordTypeName();	//readerThread시작전에만드는거
 				break;
 			}
 		}
@@ -141,13 +140,11 @@ public class AcidRainClient {
 		// 0: insert 1:select 2:update 3:delete
 		int typeidx = 0;
 		
-		
 		for(int i = 0; i < typeList.size(); i++){
 			if(tfTypeSelect.getText().equals(typeList.get(i))){
 				typeidx = i + 1;
 			}
 		}
-		
 		
 		AcidRain acidrain = new AcidRain();
 		
@@ -158,29 +155,19 @@ public class AcidRainClient {
 		msg.setType(1);
 		msg.setAcidrain(acidrain);
 		
-		AcidRain train = null;//템프
-		
-		String[] words = null;	//템프
-		
 		try{
 			oos.writeObject(msg);
 			System.out.println("MSG sent well!");
 			
 			msg = (Message) ois.readObject();
 			
-			System.out.println("일단 여까지 왔어 1");
-			
 			ArrayList<AcidRain> alist = msg.getList();
 			
-			System.out.println("일단 여까지 왔어 2");
 			System.out.println("list size: " + alist.size());
 			
 			for(int i = 0; i < alist.size(); i++){
 				list.add(i, alist.get(i).getWord());
 			}
-
-			
-			System.out.println("일단 여까지 왔어 3");
 			
 			//워드를 받았으면 
 		}catch(IOException e){
@@ -199,11 +186,15 @@ public class AcidRainClient {
 		//유저업데이트
 	}
 	
+	void updateUserName(){
+		//유저이름 업데이트
+	}
+	
 	void deleteUser(){
 		//유저딜리트
 	}
 	
-	// default word type
+	// default word type //이건 처음 한 번만
 	void selectWordTypeName(){
 		AcidRain acidrain = new AcidRain();
 		acidrain.setTypeidx(4);//select
@@ -263,7 +254,7 @@ public class AcidRainClient {
 		
 		list = new ArrayList<String>();
 		
-		list = selectWords();
+		list = selectWords();				// ??????????????
 		
 		for(int i = 0; i < list.size(); i++){
 			System.out.println(list.get(i));
@@ -279,70 +270,35 @@ public class AcidRainClient {
 		btnStart.setEnabled(false);
 	}
 	
+	// ============================================================
+	
 	//버튼 활성화
 	public void gameIsOver(){
 		btnStart.setEnabled(true);
 	}
 	
-	void putValues2List(){
-		list = new ArrayList<String>();
-		for(int i = 0; i < words.length; i++){
-			list.add(words[i]);
-		}
-	}
 	
 	void EnterWords(){
 		String input = tfEntry.getText();
 		
 		//
 		//쓰레드가 돌아가고있을때를 체크하고 돌고있을대만 아래 메소드를
-		//실행하고 싶으면 어떻게할까?
+		//실행하고 싶으면 어떻게할까? ==> 몰라 이눔아
 		//
 		
+		if(input == null){	//널이면 리턴
+			return;
+		}
 		ap.matchWord(input);	//텍스트를 받아온 후 보내버린다(비교하러)
 		tfEntry.setText("");
 	}
 	
-	
-
-	/////이미지 출력을 위한 커스텀 textArea
-	class MyTextArea extends JTextArea{
-		private Image backgroundImage;
-		
-		public MyTextArea(){
-			super();
-			setOpaque(false);
-			
-			File f = new File(".", "atrump.jpg");
-			
-		}
-		
-		public void setBackgroundImage(Image image){
-			this.backgroundImage = image;
-			this.repaint();
-		}
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			g.setColor(getBackground());
-			g.fillRect(0, 0, getWidth(), getHeight());
-			
-			if(backgroundImage != null){
-				g.drawImage(backgroundImage, 0, 0, this);
-			}
-			
-			super.paintComponent(g);
-		}
-		
-		
-	}
 	
 	
 	public AcidRainClient(){
 		
 		setGUI();
 		
-//		setThisImageAsBackground();
 		
 		//클라 시작 즉시 서버에 접속하여 DB와 통신 준비한다
 		try{
@@ -352,12 +308,16 @@ public class AcidRainClient {
 			oos.flush();
 			ois = new ObjectInputStream( s.getInputStream() );
 			
+			//wordType 갖고와서 넣어준다
+			selectWordTypeName();
+			
+			////////// READER THREAD 시작한다 //////////
+			new ReaderThreadClient(this, ois).start();
+			
 		}catch(IOException e){
 			System.out.println("클라 접속 오류: " + e);
 		}
 		
-		//wordType 갖고와서 넣어준다
-		selectWordTypeName();
 	}
 
 	public String getLocalIP() {
@@ -374,17 +334,94 @@ public class AcidRainClient {
 		
 	}
 	
-	void setThisImageAsBackground(){
+	public void exitClient(){
+		//프로토콜 보내기용 메세지
+		Message msg = new Message();
+		msg.setType(9);
 		
-		DataInputStream dis = null;
-		ImageIcon icon = new ImageIcon("atrump.jpg");
-		img = icon.getImage();
-		
-		if(img != null){
-			taScreen.setBackgroundImage(img);
+		try{
+			if(oos != null){
+				oos.writeObject(msg);
+			}
+		} catch(IOException e){
+			
+		} finally{
+			if(ois != null){
+				try{
+					ois.close();
+				} catch(IOException e){}
+			}
+			if(oos != null){
+				try{
+					ois.close();
+				} catch(IOException e){}
+			}
+			if(s != null){
+				try{
+					s.close();
+				} catch(IOException e){}
+			}
 		}
 		
+		f.setVisible(false);
+		System.exit(0);
 	}
+	
+	// user 더하기 빼기 업뎃하기 리스트 보여주기
+	void addUser(String name){
+		users.put(name, 0); //이름과 기본점수 0을 넣는다(l8er 수정)
+	}
+	
+	void deleteUser(String name){
+		users.remove(name);
+	}
+	
+	void updateUserName(String oldName, String newName){
+		int scoreSaved = users.remove(oldName);
+		users.put(newName,  scoreSaved);
+	}
+	
+	void updateUserScore(String name, int newScore){
+		users.replace(name, newScore);
+	}
+	
+	void rename(){ //이거랑 update랑 insert랑 연결시켜야되나?
+		//nameNeverChange가 true면 insert랑 연결, 아니면 updateName이랑 연결
+		
+		name = tfUsername.getText().trim();
+		if(name.isEmpty()) return;
+		
+		if(nameNeverChanged){
+			//인서트랑 관련있게
+			
+		} else{
+			sendRename(name);
+		}
+		
+		setFrameName(name);
+		
+		//다 끝났으면 다시 공백으로
+		tfUsername.setText("");
+	}
+	
+	public void setFrameName(String name){
+		this.name = name;
+		f.setTitle(String.format("%s's excitement packed Weak Acid Rain (o^0^)==o", this.name));
+		
+	}
+	
+	void sendRename(String name){ //이름업데이트
+		try{
+			Message msg = new Message();
+			msg.setType(22);		// updateUName은 프로토콜 외쳐!EE!
+			msg.setNameString(name);
+			oos.writeObject(msg);
+			
+		}catch(IOException e){
+			
+		}
+	}
+
 	
 	
 	void setGUI(){
@@ -505,19 +542,10 @@ public class AcidRainClient {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				int opNum = JOptionPane.showConfirmDialog(f, "Wnat to Exit?", "Exit Window", JOptionPane.OK_CANCEL_OPTION);
+				int opNum = JOptionPane.showConfirmDialog(f, "Are you sure you want to exit the game?", 
+						"Quit", JOptionPane.OK_CANCEL_OPTION);
 				if(opNum == JOptionPane.OK_OPTION){
-					f.setVisible(false);
-					
-					Message msg = new Message();
-					msg.setType(9);
-					
-					try {
-						oos.writeObject(msg);
-					} catch (IOException e1) {
-					}
-					
-					System.exit(0);
+					exitClient();
 				}
 			}
 			

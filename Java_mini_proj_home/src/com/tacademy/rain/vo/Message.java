@@ -15,6 +15,13 @@ public class Message implements Serializable{	//직렬화하여 보낼 객체
 	
 	//select를 위한 ArrayList보관용
 	private ArrayList<AcidRain> list;
+	
+	//유저리스트 위한 String 보관용
+	private ArrayList<String> uList;
+	private String uListString;
+	
+	//이름체인지를 위한 String 보관
+	private String nameString;
 
 	
 	// ================ GETTER SETTER ====================
@@ -43,6 +50,32 @@ public class Message implements Serializable{	//직렬화하여 보낼 객체
 	}
 	
 	
+	public ArrayList<String> getuList() {
+		return uList;
+	}
+
+	public void setuList(ArrayList<String> uList) {
+		this.uList = uList;
+	}
+	
+	
+	public String getuListString() {
+		return uListString;
+	}
+
+	public void setuListString(String uListString) {
+		this.uListString = uListString;
+	}
+	
+	public String getNameString() {
+		return nameString;
+	}
+
+	public void setNameString(String nameString) {
+		this.nameString = nameString;
+	}
+	
+
 	// toString
 	@Override
 	public String toString() {

@@ -11,13 +11,20 @@ import com.tacademy.rain.vo.Message;
 
 public class Com extends Thread{
 	
+	DBServer server;
 	Socket s;
 	ObjectInputStream ois;
 	ObjectOutputStream oos;
 	
+	//user 닉네임을 위해서
+	String name;
+	static int nameCnt = 0;	//이 객체가 여러번 만들어져도 static이라 하나야
+	
 	boolean onAir = true;
 	
-	public Com(Socket s){
+	public Com(DBServer server, Socket s){
+		name = "user" + ++nameCnt; //default 네임 표시용
+		this.server = server;
 		this.s = s;
 		
 		try{
@@ -32,6 +39,30 @@ public class Com extends Thread{
 			System.out.println("Com 생성자 오류: " + e);
 		}
 	}
+	
+	// 각각 클라로 쏴주는 부분 /////////////////////////////////////
+	
+	public void sendMessage(int msgType, String str){
+		try{
+			//보내기용 템프 메세지 객체
+			Message message = new Message();
+				
+			message.setType(msgType);
+			message.setuListString(str);
+			oos.writeObject(message);
+			
+		}catch(IOException e){
+			System.out.println("sendMessage 에러: " + e);
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	void insertUser(AcidRain acidrain){
 		
@@ -58,6 +89,12 @@ public class Com extends Thread{
 		AcidRainDAO dao = new AcidRainDAO();
 		
 		dao.updateUserScore(acidrain);
+	}
+	
+	void updateUserName(AcidRain acidrain){
+		AcidRainDAO dao = new AcidRainDAO();
+		
+		dao.updateUserName(acidrain);
 	}
 	
 	void deleteUser(AcidRain acidrain){
@@ -88,12 +125,14 @@ public class Com extends Thread{
 	public void run(){
 		
 		Message msg = null;
+		int msgType = 0;
 		
 		try{
 			while(onAir){
 				msg = (Message) ois.readObject();
+				msgType = msg.getType();
 				
-				switch(msg.getType()){
+				switch(msgType){
 				case 0:
 					insertUser(msg.getAcidrain());
 					break;
@@ -102,6 +141,9 @@ public class Com extends Thread{
 					break;
 				case 2:
 					updateUserScore(msg.getAcidrain());
+					break;
+				case 22:
+					updateUserName(msg.getAcidrain());
 					break;
 				case 3:
 					deleteUser(msg.getAcidrain());

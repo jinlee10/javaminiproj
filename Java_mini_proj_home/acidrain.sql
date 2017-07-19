@@ -156,4 +156,6 @@ SELECT wordtype.typename FROM wordtype;
 
 SELECT typename FROM wordtype WHERE 1 = 1;
 
-update users set username = 'dfdfdf10' where username = 'dfdfdf';
+update users set username = 'dfdfdf10' where username = 'aaaa';
+
+update users set username = 'wjddlrladnjs1' where username = 'wjddlrladnjs';

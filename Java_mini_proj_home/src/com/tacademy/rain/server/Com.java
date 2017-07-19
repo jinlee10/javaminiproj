@@ -60,11 +60,18 @@ public class Com extends Thread{
 	// 				C	R	U	D
 	// =========================================================
 	
+	//이름 바꿔버리기~
+	void myNameIs(AcidRain acidrain){
+		name = acidrain.getUsername();
+	}
+	
 	void insertUser(AcidRain acidrain){
 		
 		AcidRainDAO dao = new AcidRainDAO();
 		dao.insertUser(acidrain);
 		
+		//com이름바꾸기
+		myNameIs(acidrain);
 	}
 	
 	void selectWords(AcidRain acidrain){
@@ -91,10 +98,15 @@ public class Com extends Thread{
 		dao.updateUserScore(acidrain);
 	}
 	
-	void updateUserName(AcidRain acidrain, String newName){
+	void updateUserName(AcidRain acidrain, String oldName){
 		AcidRainDAO dao = new AcidRainDAO();
 		
-		dao.updateUserName(acidrain, newName);
+		System.out.println("dao가기전 새이름: " + acidrain.getUsername()
+				+ ", 구이름: " + oldName);
+		dao.updateUserName(acidrain, oldName);
+		
+		//com이름바꾸기
+		myNameIs(acidrain);
 	}
 	
 	void deleteUser(AcidRain acidrain){
@@ -143,6 +155,7 @@ public class Com extends Thread{
 				switch(msgType){
 				case 0:
 					insertUser(msg.getAcidrain());
+					server.sendUserList2All(11);
 					break;
 				case 1:
 					selectWords(msg.getAcidrain());
@@ -152,7 +165,9 @@ public class Com extends Thread{
 					break;
 				case 22:
 					updateUserName(msg.getAcidrain(), msg.getNameString());
-//					server.sendUserList2All(11);
+					System.out.println("새이름: " + msg.getAcidrain().getUsername());
+					System.out.println("헌이름: " + msg.getNameString());
+					server.sendUserList2All(11);
 					break;
 				case 3:
 					deleteUser(msg.getAcidrain());

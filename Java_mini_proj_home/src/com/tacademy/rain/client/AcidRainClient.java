@@ -46,12 +46,13 @@ public class AcidRainClient {
 	private int score;
 	private String name;
 	private String oldName;
-	private boolean nameNeverChanged = true;
+	private int nameNeverChanged = 1;//true, 0: false
 	private int myState;
 	
 	//상대방(들)의 점수
 	private ArrayList<AcidRain> others; //이름, 점수
-	private HashMap<String, Integer> users;
+	private ArrayList<String> users = new ArrayList<String>();
+//	private HashMap<String, Integer> users;
 	
 	//콘솔 출력 thread 테스트용 리스트와 쓰레드
 	private ArrayList<String> typeList;
@@ -73,7 +74,6 @@ public class AcidRainClient {
 	
 	//JDBC 3 tier 연동
 	ArrayList<AcidRain> rList; //단어 받아오는 리스트
-	
 	
 	
 	ActionListener al = new ActionListener() {
@@ -106,13 +106,16 @@ public class AcidRainClient {
 		}
 	};
 	public void configNameInsertUpdate(){
-		if(nameNeverChanged){
-			insertUser();
-			nameNeverChanged = !nameNeverChanged;
-		}else{
+		switch(nameNeverChanged){
+		case 0:
 			rename();
+			updateUserName();
+			break;
+		case 1:
+			insertUser();
+			nameNeverChanged = 0;
+			break;
 		}
-		
 	}
 	
 	//////////////////////////////////////////////////////////////
@@ -130,10 +133,10 @@ public class AcidRainClient {
 	
 	void insertUser(){
 		
-		String dummy = tfUsername.getText();
+		name = tfUsername.getText();
 		
 		AcidRain rain = new AcidRain();
-		rain.setUsername(dummy);
+		rain.setUsername(name);
 		rain.setIp(getLocalIP());
 
 		// 3티어로 가자!
@@ -192,11 +195,12 @@ public class AcidRainClient {
 		//유저이름 업데이트
 		AcidRain acidrain = new AcidRain(); //typeidx아니야!!
 		acidrain.setUsername(name);
+		System.out.println("DB로 보내기전 name: " + name + ", oldName: " + oldName);
 		
 		Message msg = new Message();
 		msg.setType(22);
 		msg.setAcidrain(acidrain);
-		msg.setNameString(name);
+		msg.setNameString(oldName);	//새로바꾸려는 
 		
 		try{
 			oos.writeObject(msg);
@@ -205,6 +209,10 @@ public class AcidRainClient {
 		}catch(IOException e){
 			System.out.println("updateUserName MSG sent error: " + e);
 		}
+		
+		
+		//유저이름리스트를갈아엎어야하는데
+		//......................
 		
 	}
 	
@@ -255,6 +263,59 @@ public class AcidRainClient {
 			////////////////////////////////////////////////
 		}
 	}
+
+	// user 더하기 빼기 업뎃하기 리스트 보여주기
+	void addUser(String name){
+		users.add(name); //이름과 기본점수 0을 넣는다(l8er 수정)
+	}
+	
+	void deleteUser(String name){
+		users.remove(name);
+	}
+	
+	void updateUserName(String newName){
+		if(users.isEmpty()) return;	// 텅빔이면 걍 나감
+		System.out.println("화면상에서 newName으로 바꾼다");
+		System.out.println("newNAme바꾸기전 구이름: " + oldName);
+		for(int i = 0; i < users.size(); i++){
+			if(users.get(i).equals(oldName)){
+				users.set(i, newName);
+			}
+		}
+		System.out.println("화면상에서 newName으로 바꿨다");
+	}
+	
+	void updateUserScore(String name, int newScore){
+		//users.replace(name, newScore);
+	}
+	
+	void rename(){ //이거랑 update랑 insert랑 연결시켜야되나?
+		//nameNeverChange가 true면 insert랑 연결, 아니면 updateName이랑 연결
+		if(name.isEmpty()) return;
+
+		oldName = name;
+		name = tfUsername.getText().trim();
+		System.out.println("바꾸기전 현재 이름: " + oldName);
+		System.out.println("바꿀 이름: " + name);
+		
+		updateUserName(name);
+
+		setFrameName(name);
+		
+		//다 끝났으면 다시 공백으로
+		tfUsername.setText("");
+	}
+	
+	//이름보여줘
+	public void showUserList(String[] nameList){
+		//리스트 일단 지워놓고
+		taList.setText("");
+		String[] list = nameList;
+		for(String name: list){
+			taList.append(name + "\n");
+		}
+	}
+	
 	
 	// ==========================================================
 	
@@ -335,7 +396,7 @@ public class AcidRainClient {
 		
 		//클라 시작 즉시 서버에 접속하여 DB와 통신 준비한다
 		try{
-			s = new Socket("127.0.0.1", 12345);
+			s = new Socket("192.168.205.128", 12345);
 			oos = new ObjectOutputStream( s.getOutputStream() );
 			// 오브젝트로 통신하기위한 magical sequence
 			oos.flush();
@@ -359,11 +420,11 @@ public class AcidRainClient {
 		
 		String localIP = "127.0.0.1";
 		
-//		try {
-//			localIP = InetAddress.getLocalHost().getHostAddress();
-//		} catch (UnknownHostException e) {
-//			System.out.println("Local IP 얻기 실패" + e);
-//		}
+		try {
+			localIP = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			System.out.println("Local IP 얻기 실패" + e);
+		}
 		
 		return localIP;
 		
@@ -400,51 +461,6 @@ public class AcidRainClient {
 		
 		f.setVisible(false);
 		System.exit(0);
-	}
-	
-	// user 더하기 빼기 업뎃하기 리스트 보여주기
-	void addUser(String name){
-		users.put(name, 0); //이름과 기본점수 0을 넣는다(l8er 수정)
-	}
-	
-	void deleteUser(String name){
-		users.remove(name);
-	}
-	
-	void updateUserName(String oldName, String newName){
-		int scoreSaved = users.remove(oldName);
-		users.put(newName,  scoreSaved);
-	}
-	
-	void updateUserScore(String name, int newScore){
-		users.replace(name, newScore);
-	}
-	
-	void rename(){ //이거랑 update랑 insert랑 연결시켜야되나?
-		//nameNeverChange가 true면 insert랑 연결, 아니면 updateName이랑 연결
-		
-		oldName = name;
-		name = tfUsername.getText().trim();
-		
-		//updateUserName(name);
-
-		setFrameName(name);
-		
-		//다 끝났으면 다시 공백으로
-		tfUsername.setText("");
-		
-		if(name.isEmpty()) return;
-		updateUserName();
-	}
-	
-	//이름보여줘
-	public void showUserList(String[] nameList){
-		//리스트 일단 지워놓고
-		taList.setText("");
-		String[] list = nameList;
-		for(String name: list){
-			taList.append(name + "\n");
-		}
 	}
 	
 	
@@ -547,12 +563,6 @@ public class AcidRainClient {
 		
 		ePanel.add(ecPanel, BorderLayout.CENTER);
 		ePanel.add(esPanel, BorderLayout.SOUTH);
-		
-		
-		
-		
-		
-		
 		
 		
 		// add 'em all onto cpanel

@@ -110,18 +110,16 @@ public class ReaderThreadClient extends Thread{
 				// 5 유저리스트 refresh, 6: userScore refresh
 				switch(msgType){
 				case 101:
-					System.out.println("protocol 101 received!");
 					wordList = selectWords(msg);
 					//무사히 왔으면 클라 리스트에 넣어줘라
 					System.out.println("단어들을 wList에 집어넣습니다");
 					client.assignWordList(wordList);
-					System.out.println("단어들을 wList에 집어넣었나봅니다");
 					break;
 				case 11:
 					String[] nameList = msg.getuListString().split(",");
 					System.out.println(nameList);
 					client.showUserList(nameList);
-					
+					System.out.println("난 nameList를 client로 전달하였다");
 					break;
 				}// switch문 끝
 			}// while문 끝

@@ -79,7 +79,7 @@ public class DBServer {
 			try{
 				System.out.println("서버가 접속을 대기중이다");
 				s = ss.accept();
-				remoteIP = "127.0.0.1";
+				remoteIP = s.getInetAddress().getHostAddress();
 				
 				System.out.println(remoteIP + "가 서버에 접속하였다");
 				

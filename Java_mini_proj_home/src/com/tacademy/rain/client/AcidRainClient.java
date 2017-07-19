@@ -399,6 +399,7 @@ public class AcidRainClient {
 	}
 	
 	
+	
 	void EnterWords(){
 		String input = tfEntry.getText();
 		//

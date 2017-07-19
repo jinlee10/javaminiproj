@@ -1,6 +1,10 @@
-package com.tacademy.rain.client;
+package com.tacademy.rain.vo;
 
-public class DrawWord {	//x, y, text, visible boolean을 가지는 객체
+import java.io.Serializable;
+
+public class DrawWord implements Serializable{	//x, y, text, visible boolean을 가지는 객체
+	
+	private static final long serialVersionUID = 355351511455294186L;
 	
 	private int x;
 	private int y;

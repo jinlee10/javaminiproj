@@ -10,11 +10,22 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
+import com.tacademy.rain.vo.DrawWord;
+
 public class AcidRainClientPanel extends JPanel{
 	
 	private ArrayList<String> typenameList;	//타입이름 저장용 리스트
 	private ArrayList<String> wList;	//단어 저장용 리스트
 	private ArrayList<DrawWord> dwList;	//단어 + x, y coord 저장용 리스트
+	
+	//패널 쓰레드 pause같은거 조정용
+	public static int PANEL_STATE_CLOSED = 0;
+	public static int PANEL_STATE_OPEN = 1;
+	public static int PANEL_STATE_ISREADY = 2;
+	public static int PANEL_STATE_START_SIGN_FIRED = 3;
+	public static int PANEL_STATE_INGAME = 4;
+	
+	private int panelState = PANEL_STATE_CLOSED;
 	
 	
 	private int xCoord, yCoord = -15;	//초기값 
@@ -39,20 +50,45 @@ public class AcidRainClientPanel extends JPanel{
 	//생성자
 	public AcidRainClientPanel(AcidRainClient client){
 		 this.client = client;
+		 panelState = PANEL_STATE_OPEN;
 	}
 	
-	public void setList(ArrayList<String> list){ //받아온 리스트
-		dwList = new ArrayList<DrawWord>();
-		System.out.println("list size: " + list.size());
+//	public void setList(ArrayList<String> list){ //받아온 리스트
+//		dwList = new ArrayList<DrawWord>();
+//		System.out.println("list size: " + list.size());
+//		
+//		System.out.println("list: " + (list == null ? "null" : "not null"));
+//		for(int i = 0; i < list.size(); i++){
+//			System.out.println(list.get(i));
+//		}
+//		
+//		this.wList = list;
+//		
+//		testAssignWList();
+//	}
+	
+	public void setDrawWordList(ArrayList<DrawWord> dwList){
+		System.out.println("서버에서 dwList를 받았다 4");
+		this.dwList = new ArrayList<DrawWord>();
+		System.out.println("서버에서 dwList를 받았다 5");
+		wList = new ArrayList<String>();
+		System.out.println("서버에서 dwList를 받았다 6");
 		
-		System.out.println("list: " + (list == null ? "null" : "not null"));
-		for(int i = 0; i < list.size(); i++){
-			System.out.println(list.get(i));
+		String str = "";
+		
+		this.dwList = dwList;
+		System.out.println("서버에서 dwList를 받았다 7");
+		
+		for(int i = 0; i < dwList.size(); i++){
+			str = dwList.get(i).getText();
+			wList.add(str);
 		}
-		
-		this.wList = list;
-		
-		testAssignWList();
+		System.out.println("서버에서 dwList를 받았다 8");
+		if(!wList.isEmpty()){
+			//panelState = PANEL_STATE_START_SIGN_FIRED;
+			System.out.println("panelstate: " + panelState);
+		}
+		System.out.println("난 a패널이고 나의 dwList길이는: " + this.dwList.size());
 	}
 	
 	
@@ -62,7 +98,9 @@ public class AcidRainClientPanel extends JPanel{
 			onAir = true;
 			at = new AniThread();
 			
-			at.start();
+			System.out.println("스타트 사인 주어졌다!");
+			at.start();	//start한다
+			
 		}else{
 			onAir = !onAir;
 		}
@@ -85,6 +123,7 @@ public class AcidRainClientPanel extends JPanel{
 			if(dwList.get(i).getY() >= getHeight()){
 				System.out.println(dwList.get(i).getText()+ " 땅에 닿음!");
 				dwList.remove(i);
+				//클라를통해 서버에 send!
 			}
 			checkEmptyList();
 		}
@@ -98,25 +137,26 @@ public class AcidRainClientPanel extends JPanel{
 		if(dwList.isEmpty()){
 			System.out.println("텅빔");
 			repaint();
-			client.gameIsOver();
+			client.gameIsOver();	//클라를 통해 게임오버 joptionpane띄우기
+			panelState = PANEL_STATE_OPEN;
 			onAir = !onAir;
 		}
 	}
 	
-	public void testAssignWList(){
-		for(int i = 0; i < this.wList.size(); i++){
-			xCoord = random.nextInt(500);
-			yCoord = random.nextInt(600) - 600; //맞나?
-			deltaY = random.nextInt(10) + 10;
-			
-			//alignment : 정렬
-			
-			word = new DrawWord(xCoord, yCoord, this.wList.get(i), deltaY);
-			dwList.add(word);
-			
-			System.out.println(dwList.get(i).getText());
-		}			
-	}
+//	public void testAssignWList(){
+//		for(int i = 0; i < this.wList.size(); i++){
+//			xCoord = random.nextInt(500);
+//			yCoord = random.nextInt(600) - 600; //맞나?
+//			deltaY = random.nextInt(10) + 10;
+//			
+//			//alignment : 정렬
+//			
+//			word = new DrawWord(xCoord, yCoord, this.wList.get(i), deltaY);
+//			dwList.add(word);
+//			
+////			System.out.println(dwList.get(i).getText());
+//		}			
+//	}
 	
 	class AniThread extends Thread{
 		
@@ -128,16 +168,20 @@ public class AcidRainClientPanel extends JPanel{
 		
 		public void run(){	//여기서는 내려주는거랑 계속 그려주기만 하면됨
 			while(onAir){
-				drawWords(20);
-
-				//리스트 수량 확인
-				wordTouchedHeight();
-				
-				repaint();
-				
-				try{
-					sleep(500);
-				} catch(InterruptedException e){}
+				if(panelState == PANEL_STATE_START_SIGN_FIRED){
+					//ready일때만(서버에서 줘야한다 서버에서!!!)
+					//panelState = PANEL_STATE_INGAME;
+					drawWords(20);
+					
+					//리스트 수량 확인
+					wordTouchedHeight();
+					
+					repaint();
+					
+					try{
+						sleep(500);
+					} catch(InterruptedException e){}
+				}
 				
 			}
 		}
@@ -145,6 +189,7 @@ public class AcidRainClientPanel extends JPanel{
 	}
 	
 	public void drawWords(int dy){
+		System.out.println("서버에서 dwList를 받았다 999");
 		for(int i = 0; i < dwList.size(); i++){
 			DrawWord temp = dwList.get(i);
 			temp.yAxisMover();
@@ -192,6 +237,14 @@ public class AcidRainClientPanel extends JPanel{
 
 	public ArrayList<String> getWList() {
 		return wList;
+	}
+
+	public int getPanelState() {
+		return panelState;
+	}
+
+	public void setPanelState(int panelState) {
+		this.panelState = panelState;
 	}
 
 	

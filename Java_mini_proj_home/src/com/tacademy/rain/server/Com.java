@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Random;
 
 import com.tacademy.rain.dao.AcidRainDAO;
 import com.tacademy.rain.vo.AcidRain;
+import com.tacademy.rain.vo.DrawWord;
 import com.tacademy.rain.vo.Message;
 
 public class Com extends Thread{
@@ -20,12 +23,23 @@ public class Com extends Thread{
 	String name;
 	static int nameCnt = 0;	//이 객체가 여러번 만들어져도 static이라 하나야
 	
+	int panelState = 0;
+	
 	boolean onAir = true;
+	
+	//DrawList생성
+	ArrayList<DrawWord> drawWordList;
+	Random random;
+	int currentLevel = 1;
+	
+	//모든 state == isReady인 유저들에게 DrawWordList를날려줘야지
 	
 	public Com(DBServer server, Socket s){
 		name = "user" + ++nameCnt; //default 네임 표시용
 		this.server = server;
 		this.s = s;
+		//랜덤도 여기서 그냥 초기화하자^^
+		random = new Random();
 		
 		try{
 			ois = new ObjectInputStream( s.getInputStream() );
@@ -38,6 +52,27 @@ public class Com extends Thread{
 		} catch (IOException e){
 			System.out.println("Com 생성자 오류: " + e);
 		}
+	}
+	
+	////DrawWord List생성
+	public void createDrawWordList(ArrayList<AcidRain> list){
+		//리스트 초기화
+		drawWordList = new ArrayList<DrawWord>();
+		ArrayList<AcidRain> rList = list;
+		int xCoord = 0;
+		int yCoord = 0;
+		int deltaY = 0;
+		
+		for(int i = 0; i < list.size(); i++){
+			xCoord = random.nextInt(450);
+			yCoord = random.nextInt(600) - 600;
+			deltaY = random.nextInt(10) + 5 * currentLevel;
+			
+			drawWordList.add(new DrawWord(xCoord, yCoord, 
+					rList.get(i).getWord(), deltaY));
+		}
+		
+		System.out.println("여긴 com이고 dwList길이: " + drawWordList.size());
 	}
 	
 	// 각각 클라로 쏴주는 부분 /////////////////////////////////////
@@ -53,6 +88,33 @@ public class Com extends Thread{
 			
 		}catch(IOException e){
 			System.out.println("sendMessage 에러: " + e);
+		}
+	}
+	
+	// DrawWordList쏴주는부분~
+	public void sendDWList(int msgType, ArrayList<DrawWord> dwList){
+		try{
+			Message message = new Message();
+			
+			message.setType(msgType);
+			message.setDWList(dwList);
+			oos.writeObject(message);
+		} catch(IOException e){
+			System.out.println("sendDrawMessageError: " + e);
+		}
+	}
+	
+	// panel state 변경해주기
+	public void sendPanelState(int msgType, int panelState){
+		try{
+			Message message = new Message();
+			
+			message.setType(msgType);
+			message.setPanelState(panelState);
+			oos.writeObject(message);
+			
+		}catch(IOException e){
+			System.out.println("sendPanelState Error: " + e);
 		}
 	}
 	
@@ -79,8 +141,12 @@ public class Com extends Thread{
 		
 		Message msg = new Message();
 		msg = dao.selectWords(acidrain);
-		msg.setType(101);//select
+		//acidrain의 word만 받은상태. 이제 drawword로 가공하자
+		createDrawWordList(msg.getList());
 		
+		msg.setType(101);//select(DrawWordList갖고와)
+		msg.setDWList(drawWordList); //가공된 drawWordList를넣는다
+				
 		System.out.println("msg는 X맨이..." + (msg == null ? "맞았습니다!" : "아니었습니다!"));
 		
 		try{
@@ -159,6 +225,8 @@ public class Com extends Thread{
 					break;
 				case 1:
 					selectWords(msg.getAcidrain());
+					//여기서 단어 DrawWord만들어서 줘야한다
+					
 					break;
 				case 2:
 					updateUserScore(msg.getAcidrain());
@@ -181,6 +249,11 @@ public class Com extends Thread{
 					server.exitcom(this);
 					server.sendUserList2All(11);
 					onAir = false;	//while을 벗어나야 catch걸리기전에 꺼버리지
+					break;
+				case 33: //패널의 state값 받아온다
+					panelState = msg.getPanelState();
+					server.checkIfAllPanelIsReady(panelState);
+					System.out.println("나는 com이고 서버한테 나의 panelState전했다");
 					break;
 				}//switch문 끝
 				
@@ -214,6 +287,14 @@ public class Com extends Thread{
 			System.out.println(e);
 		}
 		
+	}
+
+	public int getPanelState() {
+		return panelState;
+	}
+
+	public void setPanelState(int panelState) {
+		this.panelState = panelState;
 	}
 	
 	

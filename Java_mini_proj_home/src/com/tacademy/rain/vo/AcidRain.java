@@ -17,8 +17,6 @@ public class AcidRain implements Serializable{
 	
 	//사용자
 	private String username;
-	//이름바꾸기용
-	private String oldUsername;
 	
 	
 	// --------- 게터 세터 -----------------

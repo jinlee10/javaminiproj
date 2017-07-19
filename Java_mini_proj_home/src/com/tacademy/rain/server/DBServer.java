@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import com.tacademy.rain.client.AcidRainClientPanel;
+
 public class DBServer {
 	
 	//매번 만들어지는 클라이언트에 대응하는 소켓을 가진 Comm쓰레드
@@ -55,6 +57,29 @@ public class DBServer {
 			cm.sendMessage(11, ul);
 		}
 	}
+	//클라의 panelState를 받아온다
+	public void checkIfAllPanelIsReady(int panelState){
+		int pState = panelState;
+		int comSize = 0;
+		for(Com cm : comList){
+			if(cm.getPanelState() != AcidRainClientPanel.PANEL_STATE_ISREADY){
+				System.out.println("모든 클라가 준비버튼을 눌러야 시작됩니다");
+				return;
+			}
+			comSize++;
+		}
+		//모든클라가 준비를 맞췄으면..
+		if(comSize == comList.size()){
+			System.out.println("모든 클라가 준비를 완료하였습니다.");
+			for(Com cm : comList){
+				cm.sendPanelState(13, AcidRainClientPanel.PANEL_STATE_START_SIGN_FIRED);
+			}
+		}
+	}
+	
+	// 클라의 panelStater를 보내준다
+	
+	// 모든 패널에게 게임 시작하라고 보내기(우선 모든 패널들 검사해야함 panelState)
 	
 	
 	//3티어로 돌려보자~!

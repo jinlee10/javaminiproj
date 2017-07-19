@@ -28,6 +28,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.tacademy.rain.vo.AcidRain;
+import com.tacademy.rain.vo.DrawWord;
 import com.tacademy.rain.vo.Message;
 
 public class AcidRainClient {
@@ -116,6 +117,35 @@ public class AcidRainClient {
 			nameNeverChanged = 0;
 			break;
 		}
+	}
+	
+	//Panel한테 보내는거
+	
+	public void sendPanelDrawWordList(ArrayList<DrawWord> dwList){
+		System.out.println("서버에서 dwList를 받았다 3");
+		ap.setDrawWordList(dwList);
+		//dwList의 word사이즈가 20이면 panel의 state를 received로 바꾼다
+		//그리고 그걸 써버로 보낸다
+		//써버에서 모든 com들의 panelState가 received면 start로 state바꿔준다
+		//그래야 start할수있다
+	}
+	
+	//panel한테 받아온 panelState 서버에 보내준다
+	public void sendPanelStateToServer(int panelState){
+		Message msg = new Message();
+		msg.setType(33);
+		msg.setPanelState(panelState);
+		
+		try{
+			oos.writeObject(msg);
+			System.out.println("서버로 나의 panelState를 보내었습니다 허허..");
+		}catch(IOException e){
+			System.out.println("panelState전송 오류:" + e);
+		}
+	}
+	
+	public void setPanelState(int panelState){
+		ap.setPanelState(panelState);
 	}
 	
 	//////////////////////////////////////////////////////////////
@@ -322,23 +352,26 @@ public class AcidRainClient {
 	void isReady(){
 		myState = Message.IS_READY;
 		
-		selectWords(); //oos로 보내고 readerThread가 읽어서 저장한다
-		System.out.println("(gameStart)wList size: " + wList.size());
+		ap.setPanelState(AcidRainClientPanel.PANEL_STATE_ISREADY);
 		
-		for(int i = 0; i < wList.size(); i++){
-			System.out.println(wList.get(i));
-		}
+		selectWords();
+//		selectWords(); //oos로 보내고 readerThread가 읽어서 저장한다
+//		System.out.println("(gameStart)wList size: " + wList.size());
+//		
+//		for(int i = 0; i < wList.size(); i++){
+//			System.out.println(wList.get(i));
+//		} 
+//		
+//		System.out.println("일단 여까지 왔어 5(게임스타트메솓)");
+//		
+//		//Thread.sleep(1000);
+//		
+//		try {
+//			Thread.sleep(1000);
+//		} catch (InterruptedException e) {
+//		}
 		
-		System.out.println("일단 여까지 왔어 5(게임스타트메솓)");
 		
-		//Thread.sleep(1000);
-		
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
-		
-		ap.setList(wList);
 		
 //		try {
 //			Thread.sleep(1000);

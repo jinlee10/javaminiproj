@@ -7,9 +7,9 @@ public class Message implements Serializable{	//직렬화하여 보낼 객체
 	//사실 얘도 최상위 하나 만들어놓고 용도별로 다르게
 	//쓰려면 변수추가할게 아니라 상속시켜서 사용해야함
 	public static int IS_CONNEDTED = 1;
-	public static int IS_READY = 1;
-	public static int IS_PLAYING_GAME = 1;
-	public static int HAS_FINISHED_GAME = 1;
+	public static int IS_READY = 2;
+	public static int IS_PLAYING_GAME = 3;
+	public static int HAS_FINISHED_GAME = 4;
 	
 	
 	private static final long serialVersionUID = -3546158357126396496L;
@@ -27,6 +27,10 @@ public class Message implements Serializable{	//직렬화하여 보낼 객체
 	//이름체인지를 위한 String 보관
 	private String nameString;
 	private String entryString;
+	
+	//DrawWord List를 클라로 보내기위한 리스트
+	private ArrayList<DrawWord> dwList;
+	private int panelState;
 	
 	//네트워크를 위한 각각의 myState보관
 	private int state;
@@ -98,6 +102,22 @@ public class Message implements Serializable{	//직렬화하여 보낼 객체
 
 	public void setState(int state) {
 		this.state = state;
+	}
+	
+	public ArrayList<DrawWord> getDWList() {
+		return dwList;
+	}
+
+	public void setDWList(ArrayList<DrawWord> dwList) {
+		this.dwList = dwList;
+	}
+	
+	public int getPanelState() {
+		return panelState;
+	}
+
+	public void setPanelState(int panelState) {
+		this.panelState = panelState;
 	}
 
 	// toString

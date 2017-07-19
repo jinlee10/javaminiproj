@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 import com.tacademy.rain.vo.AcidRain;
+import com.tacademy.rain.vo.DrawWord;
 import com.tacademy.rain.vo.Message;
 
 public class ReaderThreadClient extends Thread{
@@ -70,28 +71,13 @@ public class ReaderThreadClient extends Thread{
 //		return list;
 //	}
 	
-	public ArrayList<String> selectWords(Message msg){
+	public ArrayList<DrawWord> selectWords(Message msg){
 		System.out.println("readerTHread의 selectWords프로토콜타고까지 왔다 1");
 		
 		Message msgTemp = new Message();
-		ArrayList<AcidRain> aList = null;
-		ArrayList<String> tempWordList = null;
+		ArrayList<DrawWord> tempDWList = msg.getDWList();
 		
-		//
-		msgTemp = msg;
-		
-		aList = msgTemp.getList();
-		tempWordList = new ArrayList<String>();
-		
-		System.out.println("list size: " + aList.size());
-		
-		for(int i = 0; i < aList.size(); i++){
-			tempWordList.add(aList.get(i).getWord()); //템프 string리스트 만들고 값 받는다
-		}
-		
-		
-		
-		return tempWordList;
+		return tempDWList;
 	}
 	
 	
@@ -99,8 +85,10 @@ public class ReaderThreadClient extends Thread{
 	public void run(){
 		
 		Message msg = null;
-		ArrayList<String> wordList = null;
+		ArrayList<DrawWord> dwList = null;
 		int msgType = 0;
+		int panelState = 0;
+		
 		try{
 			while(true){
 				msg = (Message) ois.readObject();
@@ -110,16 +98,25 @@ public class ReaderThreadClient extends Thread{
 				// 5 유저리스트 refresh, 6: userScore refresh
 				switch(msgType){
 				case 101:
-					wordList = selectWords(msg);
-					//무사히 왔으면 클라 리스트에 넣어줘라
-					System.out.println("단어들을 wList에 집어넣습니다");
-					client.assignWordList(wordList);
+					dwList = selectWords(msg);
+					System.out.println("서버에서 dwList를 받았다 1");
+					client.sendPanelDrawWordList(dwList);
+
+					System.out.println("서버에서 dwList를 받았다 2");
 					break;
 				case 11:
 					String[] nameList = msg.getuListString().split(",");
 					System.out.println(nameList);
 					client.showUserList(nameList);
 					System.out.println("난 nameList를 client로 전달하였다");
+					break;
+				case 12:	//서버에서 DrawWordList받아온다
+					dwList = msg.getDWList();
+					client.sendPanelDrawWordList(dwList);
+					break;
+				case 13:	//server서 panelstate를 받아온다음 클라를통해 넣는다
+					panelState = msg.getPanelState();
+					client.setPanelState(panelState);
 					break;
 				}// switch문 끝
 			}// while문 끝

@@ -182,6 +182,8 @@ public class AcidRainClient {
 		} catch (IOException e) {
 			System.out.println("오브젝트 전송 오류 " + e);
 		}
+		
+		tfUsername.setText("");
 	}
 	
 	
@@ -392,6 +394,7 @@ public class AcidRainClient {
 	
 	//버튼 활성화
 	public void gameIsOver(){
+		JOptionPane.showMessageDialog(f, "Round Over!", "Weak Acid Rain Alert", JOptionPane.INFORMATION_MESSAGE);
 		btnStart.setEnabled(true);
 	}
 	
@@ -402,13 +405,30 @@ public class AcidRainClient {
 		//쓰레드가 돌아가고있을때를 체크하고 돌고있을대만 아래 메소드를
 		//실행하고 싶으면 어떻게할까? ==> 몰라 이눔아
 		//
-		if(input == null){	//널이면 리턴
+		if(input == null){	//널이면 리턴, 시작 안했으면 리턴
+			tfEntry.setText("");
 			return;
 		}
-		ap.matchWord(input);	//텍스트를 받아온 후 보내버린다(비교하러)
+		System.out.println("EntryCheck 대장정 1, input : " + input);
+		//해당 단어를 메세지에 담아 server로 보낸다!
+		Message entryMsg = new Message();
+		entryMsg.setType(34);
+		System.out.println("EntryCheck 대장정 2, 이제 서버로 보낸다!");
+		entryMsg.setEntryString(input);
+		
+		try{
+			oos.writeObject(entryMsg);
+		} catch(IOException e){
+			System.out.println("entryMsg send error: " + e);
+		}
+		
+		
 		tfEntry.setText("");
 	}
 	
+	public void matchWord(String inputEntry){
+		ap.matchWord(inputEntry);	//텍스트를 받아온 후 보내버린다(비교하러)
+	}
 	
 	public AcidRainClient(){
 		
@@ -578,6 +598,8 @@ public class AcidRainClient {
 		esPanel.setBorder(BorderFactory.createLineBorder(new Color(232, 240, 220), 3));
 		
 		tfTypeSelect = new JTextField();
+		tfTypeSelect.setActionCommand("G");
+		tfTypeSelect.addActionListener(al);
 		esPanel.add(tfTypeSelect);
 		esPanel.add(btnStart);
 		

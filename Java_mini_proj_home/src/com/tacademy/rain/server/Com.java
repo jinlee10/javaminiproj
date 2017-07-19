@@ -70,6 +70,21 @@ public class Com extends Thread{
 		}
 	}
 	
+	public void sendEntryMessage(int msgType, String entry){
+		try{
+			//보내기용 템프 메세지 객체
+			Message message = new Message();
+			
+			message.setType(msgType);
+			message.setEntryString(entry);
+			System.out.println("EntryCheck 대장정 5(이제 클라로 보낸다!) entry: " + entry);
+			oos.writeObject(message);
+			
+		} catch(IOException e){
+			System.out.println("send entry 에러: " + e);
+		}
+	}
+	
 	// DrawWordList쏴주는부분~
 	public void sendDWList(int msgType, ArrayList<DrawWord> dwList){
 		try{
@@ -173,6 +188,7 @@ public class Com extends Thread{
 		
 		Message msg = null;
 		int msgType = 0;
+		String entryTemp = "";
 		
 		//시작하자마자 이름 보내고 싶다
 		//server.sendUserList(this);
@@ -235,6 +251,14 @@ public class Com extends Thread{
 				case 33: //패널의 state값 받아온다
 					panelState = msg.getPanelState();
 //					server.checkIfAllPanelIsReady(panelState);
+					break;
+				case 34:
+					System.out.println("EntryCheck 대장정 3: 서버 프로토콜 34번국도 타고왔으~");
+					entryTemp = msg.getEntryString();
+					//여기서 단어를 각각 클라이언트로 쏴주는데
+					//synchronized를 활용하여
+					//값에 접근중이면 기다리도록 처리를 해 주어야 한다. 아님 곰보SSSsss
+					server.sendInputEntry2All(14, entryTemp);
 					break;
 				}//switch문 끝
 				

@@ -53,7 +53,7 @@ public class DBServer {
 		for(int i = 0; i < list.size(); i++){
 			xCoord = random.nextInt(450);
 			yCoord = random.nextInt(600) - 600;
-			deltaY = random.nextInt(10) + 5 * currentLevel;
+			deltaY = random.nextInt(30) + 5 * currentLevel;
 
 			dwList.add(new DrawWord(xCoord, yCoord, 
 					rList.get(i).getWord(), deltaY));
@@ -88,6 +88,13 @@ public class DBServer {
 	public void sendMsg2All(int protocol, String str){
 		for(Com cm : comList){
 			cm.sendMessage(6, str);
+		}
+	}
+	
+	public void sendInputEntry2All(int protocol, String str){
+		System.out.println("EntryCheck 대장정 4: for문돌면서 각 서버에 보낸다!");
+		for(Com cm : comList){
+			cm.sendEntryMessage(14, str);
 		}
 	}
 	

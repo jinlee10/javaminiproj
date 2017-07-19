@@ -88,6 +88,7 @@ public class ReaderThreadClient extends Thread{
 		ArrayList<DrawWord> dwList = null;
 		int msgType = 0;
 		int panelState = 0;
+		String inputEntry = "";
 		
 		try{
 			while(true){
@@ -119,6 +120,11 @@ public class ReaderThreadClient extends Thread{
 					client.setPanelState(panelState);
 					break;
 				case 13:	//server서 panelstate를 받아온다음 클라를통해 넣는다
+					break;
+				case 14:
+					//여기서 entry를 받고 클라->패널로 matchword를...
+					inputEntry = msg.getEntryString();
+					client.matchWord(inputEntry);
 					break;
 				}// switch문 끝
 			}// while문 끝

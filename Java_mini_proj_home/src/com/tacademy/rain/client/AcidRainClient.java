@@ -96,6 +96,9 @@ public class AcidRainClient {
 			case "I":
 				configNameInsertUpdate();
 				break;
+			case "U":
+//				showUserTable();
+				break;
 				
 			//////////////////////////////////////////////////////////
 			// CRUD //
@@ -516,6 +519,7 @@ public class AcidRainClient {
 		
 		f = new JFrame("Weak Adic Rain Game Client (o^0^)==o");
 		f.setBounds(new Rectangle(0,0,700,600));
+		f.setResizable(false);
 		
 		//north panel
 		nPanel = new JPanel(new BorderLayout());

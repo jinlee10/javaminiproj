@@ -54,27 +54,6 @@ public class Com extends Thread{
 		}
 	}
 	
-	////DrawWord List생성
-	public void createDrawWordList(ArrayList<AcidRain> list){
-		//리스트 초기화
-		drawWordList = new ArrayList<DrawWord>();
-		ArrayList<AcidRain> rList = list;
-		int xCoord = 0;
-		int yCoord = 0;
-		int deltaY = 0;
-		
-		for(int i = 0; i < list.size(); i++){
-			xCoord = random.nextInt(450);
-			yCoord = random.nextInt(600) - 600;
-			deltaY = random.nextInt(10) + 5 * currentLevel;
-			
-			drawWordList.add(new DrawWord(xCoord, yCoord, 
-					rList.get(i).getWord(), deltaY));
-		}
-		
-		System.out.println("여긴 com이고 dwList길이: " + drawWordList.size());
-	}
-	
 	// 각각 클라로 쏴주는 부분 /////////////////////////////////////
 	
 	public void sendMessage(int msgType, String str){
@@ -136,26 +115,16 @@ public class Com extends Thread{
 		myNameIs(acidrain);
 	}
 	
-	void selectWords(AcidRain acidrain){
+	Message selectWords(AcidRain acidrain){
+		System.out.println("select 대장정 8: 이제 dao로 갈준비 " + acidrain.getTypeidx());
 		AcidRainDAO dao = new AcidRainDAO();
 		
 		Message msg = new Message();
 		msg = dao.selectWords(acidrain);
+//		System.out.println("select 대장정 9: selectword하고나서 리턴값 받아옴");
 		//acidrain의 word만 받은상태. 이제 drawword로 가공하자
-		createDrawWordList(msg.getList());
 		
-		msg.setType(101);//select(DrawWordList갖고와)
-		msg.setDWList(drawWordList); //가공된 drawWordList를넣는다
-				
-		System.out.println("msg는 X맨이..." + (msg == null ? "맞았습니다!" : "아니었습니다!"));
-		
-		try{
-			oos.writeObject(msg);
-			Thread.sleep(1000);
-		} catch(IOException e){
-			System.out.println("서버에서 받아온 acidrain 에러" + e);
-		} catch (InterruptedException e) {
-		}
+		return msg;
 	}
 	
 	void updateUserScore(AcidRain acidrain){
@@ -183,17 +152,14 @@ public class Com extends Thread{
 	
 	void selectWordTypeName(AcidRain acidrain){
 		AcidRainDAO dao = new AcidRainDAO();
-		System.out.println("com도 여기까지 왔다 1");
 		
 		Message msg = null;
 		
 		msg = dao.selectWordTypeName(acidrain);
 
-		System.out.println("sql selecttypename 메소드 안이야 1");
 		try{
 			oos.writeObject(msg);
 			System.out.println(msg.getList().size());
-			System.out.println("sql selecttypename 메소드 안이야 2");
 		}catch(IOException e){
 			System.out.println("서버에서 받아온 typename에러 : " + e);
 		}
@@ -224,9 +190,25 @@ public class Com extends Thread{
 					server.sendUserList2All(11);
 					break;
 				case 1:
-					selectWords(msg.getAcidrain());
-					//여기서 단어 DrawWord만들어서 줘야한다
+					System.out.println("select 대장정 5(com 1번에 막 들어옴) typeidx:" + msg.getAcidrain().getTypeidx());
+					Message tempMsg = msg;
+					int typeIdx = 0;
+					panelState = msg.getPanelState();
+					System.out.println("select 대장정 5.05 com의 panelstate: " + panelState);
+					// 요기서 현재 접속중인 pState == isready 인 애들의
+					// cnt++하고 typeName을 계속 갱신한다
+					typeIdx = server.checkPanelStateAndTypeName(tempMsg);
+					System.out.println("select 대장정 6(최종 typeidx받아옴: )" + typeIdx);
+					tempMsg.getAcidrain().setTypeidx(typeIdx);
+					System.out.println("select 대장정 7(받아온 typeidx를 acidrain에 넣어줌)");
 					
+					tempMsg = selectWords(tempMsg.getAcidrain());
+//					System.out.println("select 대장정 8: selectwords하고난 tempMsg");
+					System.out.println("모두에게 보낼 리스트 만들기 전 tempMsg의 길이: " + tempMsg.getList().size());
+					server.createDrawWordList(tempMsg.getList());
+					System.out.println("서버가보낼 리스트의 길이: " + tempMsg.getList().size());
+					server.sendDrawWordList2All();
+					System.out.println("서버서 모두에게 dwList를 보냇서!");
 					break;
 				case 2:
 					updateUserScore(msg.getAcidrain());
@@ -252,8 +234,7 @@ public class Com extends Thread{
 					break;
 				case 33: //패널의 state값 받아온다
 					panelState = msg.getPanelState();
-					server.checkIfAllPanelIsReady(panelState);
-					System.out.println("나는 com이고 서버한테 나의 panelState전했다");
+//					server.checkIfAllPanelIsReady(panelState);
 					break;
 				}//switch문 끝
 				

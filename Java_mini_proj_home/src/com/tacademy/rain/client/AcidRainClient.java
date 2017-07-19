@@ -50,6 +50,8 @@ public class AcidRainClient {
 	private int nameNeverChanged = 1;//true, 0: false
 	private int myState;
 	
+	private int myUserNum = 0;
+	
 	//상대방(들)의 점수
 	private ArrayList<AcidRain> others; //이름, 점수
 	private ArrayList<String> users = new ArrayList<String>();
@@ -128,6 +130,7 @@ public class AcidRainClient {
 		//그리고 그걸 써버로 보낸다
 		//써버에서 모든 com들의 panelState가 received면 start로 state바꿔준다
 		//그래야 start할수있다
+		ap.setPanelState(AcidRainClientPanel.PANEL_STATE_START_SIGN_FIRED);
 	}
 	
 	//panel한테 받아온 panelState 서버에 보내준다
@@ -154,10 +157,8 @@ public class AcidRainClient {
 	
 	// 아주 작고 귀여운(??) wList db->server->readerThread->여기까지 온거 저장용
 	public void assignWordList(ArrayList<String> wList){
-		System.out.println("101 word assign1");
 		this.wList = wList;
 		System.out.println("wList size: " + wList.size());
-		System.out.println("101 word assign2");
 		System.out.println("this.wList.size: " + this.wList.size());
 	}
 	
@@ -193,6 +194,7 @@ public class AcidRainClient {
 				typeidx = i + 1;
 			}
 		}
+		System.out.println("select 대장정 2: typeidx: " + typeidx);
 		
 		AcidRain acidrain = new AcidRain();
 		
@@ -202,9 +204,12 @@ public class AcidRainClient {
 		Message msg = new Message();
 		msg.setType(1);
 		msg.setAcidrain(acidrain);
+		msg.setPanelState(ap.getPanelState());
+		System.out.println("select 대장정 3, msg의 typeidx: " + msg.getAcidrain().getTypeidx());
 		
 		try{
 			oos.writeObject(msg);
+			System.out.println("select 대장정 4");
 			System.out.println("MSG sent well!");
 			
 			//워드를 받았으면 
@@ -212,9 +217,6 @@ public class AcidRainClient {
 			System.out.println("MSG sent error: " + e);
 		}
 		
-
-		
-		System.out.println("일단 여까지 왔어 4");
 	}
 	
 	void updateUserScore(){
@@ -350,33 +352,18 @@ public class AcidRainClient {
 	// ==========================================================
 	
 	void isReady(){
-		myState = Message.IS_READY;
+//		myState = Message.IS_READY;
 		
 		ap.setPanelState(AcidRainClientPanel.PANEL_STATE_ISREADY);
-		
+		System.out.println("select 대장정 1");
 		selectWords();
-//		selectWords(); //oos로 보내고 readerThread가 읽어서 저장한다
-//		System.out.println("(gameStart)wList size: " + wList.size());
-//		
-//		for(int i = 0; i < wList.size(); i++){
-//			System.out.println(wList.get(i));
-//		} 
-//		
-//		System.out.println("일단 여까지 왔어 5(게임스타트메솓)");
-//		
-//		//Thread.sleep(1000);
-//		
-//		try {
-//			Thread.sleep(1000);
-//		} catch (InterruptedException e) {
-//		}
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
 		
 		
-		
-//		try {
-//			Thread.sleep(1000);
-//		} catch (InterruptedException e) {
-//		}
 //		new Thread(){
 //			public void run(){
 //				while(true){

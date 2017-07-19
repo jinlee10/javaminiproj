@@ -68,22 +68,17 @@ public class AcidRainClientPanel extends JPanel{
 //	}
 	
 	public void setDrawWordList(ArrayList<DrawWord> dwList){
-		System.out.println("서버에서 dwList를 받았다 4");
 		this.dwList = new ArrayList<DrawWord>();
-		System.out.println("서버에서 dwList를 받았다 5");
 		wList = new ArrayList<String>();
-		System.out.println("서버에서 dwList를 받았다 6");
 		
 		String str = "";
 		
 		this.dwList = dwList;
-		System.out.println("서버에서 dwList를 받았다 7");
 		
-		for(int i = 0; i < dwList.size(); i++){
-			str = dwList.get(i).getText();
+		for(int i = 0; i < this.dwList.size(); i++){
+			str = this.dwList.get(i).getText();
 			wList.add(str);
 		}
-		System.out.println("서버에서 dwList를 받았다 8");
 		if(!wList.isEmpty()){
 			//panelState = PANEL_STATE_START_SIGN_FIRED;
 			System.out.println("panelstate: " + panelState);
@@ -189,7 +184,6 @@ public class AcidRainClientPanel extends JPanel{
 	}
 	
 	public void drawWords(int dy){
-		System.out.println("서버에서 dwList를 받았다 999");
 		for(int i = 0; i < dwList.size(); i++){
 			DrawWord temp = dwList.get(i);
 			temp.yAxisMover();

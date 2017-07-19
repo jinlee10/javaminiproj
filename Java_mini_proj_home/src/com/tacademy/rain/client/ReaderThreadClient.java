@@ -113,10 +113,12 @@ public class ReaderThreadClient extends Thread{
 				case 12:	//서버에서 DrawWordList받아온다
 					dwList = msg.getDWList();
 					client.sendPanelDrawWordList(dwList);
+					//13번에서 옮겨왔다 두줄!
+					panelState = msg.getPanelState();
+					System.out.println("panelState받아온거: " + panelState);
+					client.setPanelState(panelState);
 					break;
 				case 13:	//server서 panelstate를 받아온다음 클라를통해 넣는다
-					panelState = msg.getPanelState();
-					client.setPanelState(panelState);
 					break;
 				}// switch문 끝
 			}// while문 끝

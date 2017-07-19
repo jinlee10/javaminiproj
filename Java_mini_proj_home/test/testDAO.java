@@ -7,14 +7,15 @@ public class testDAO {
 	public testDAO(){
 		AcidRain rain = new AcidRain();
 		rain.setTypeidx(4);
-		Message msg = new Message();
+//		Message msg = new Message();
 		
 		
 		
 		AcidRainDAO dao = new AcidRainDAO();
-		msg = dao.selectWordTypeName(rain);
+//		msg = dao.selectWordTypeName(rain);
 		
-		System.out.println("msg는 : " + (msg == null ? "null" : "not null"));
+		dao.selectWords(rain);
+//		System.out.println("msg는 : " + (msg == null ? "null" : "not null"));
 		//System.out.println(msg.getAcidrain().getTypename());
 		
 		

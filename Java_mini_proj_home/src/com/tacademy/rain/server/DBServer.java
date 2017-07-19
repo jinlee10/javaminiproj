@@ -4,14 +4,23 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.tacademy.rain.client.AcidRainClientPanel;
+import com.tacademy.rain.vo.AcidRain;
+import com.tacademy.rain.vo.DrawWord;
+import com.tacademy.rain.vo.Message;
 
 public class DBServer {
 	
+	ArrayList<Com> comList = new ArrayList<Com>();
+	ArrayList<DrawWord> dwList; 
+	Random random = new Random();
+	int currentLevel = 1;
+	
 	//매번 만들어지는 클라이언트에 대응하는 소켓을 가진 Comm쓰레드
 	//묶어서 관리할 객체
-	ArrayList<Com> comList = new ArrayList<Com>();
+	
 	ServerSocket ss;
 	Socket s;
 	
@@ -28,6 +37,37 @@ public class DBServer {
 		userList.substring(0, userList.length() - 1); //마지막한자에서 1뺀만큼( , 이거)
 		
 		return userList;
+	}
+	
+	//서버서 단 한개의 DWList를만들어 각각 com에 전달해준다
+	public void createDrawWordList(ArrayList<AcidRain> list){
+		//리스트 초기화
+		dwList = new ArrayList<DrawWord>();
+		ArrayList<AcidRain> rList = list;
+		System.out.println("select 대장정 9 list길이: " + rList.size());
+		
+		int xCoord = 0;
+		int yCoord = 0;
+		int deltaY = 0;
+
+		for(int i = 0; i < list.size(); i++){
+			xCoord = random.nextInt(450);
+			yCoord = random.nextInt(600) - 600;
+			deltaY = random.nextInt(10) + 5 * currentLevel;
+
+			dwList.add(new DrawWord(xCoord, yCoord, 
+					rList.get(i).getWord(), deltaY));
+		}
+
+		System.out.println("여긴 server이고 dwList길이: " + dwList.size());
+		
+	}
+	
+	public void sendDrawWordList2All(){
+		for(Com cm : comList){
+			cm.sendDWList(101, dwList);
+			System.out.println("여기는 대빵서버고 dwList의 길이: " + dwList.size());
+		}
 	}
 	
 	
@@ -58,23 +98,25 @@ public class DBServer {
 		}
 	}
 	//클라의 panelState를 받아온다
-	public void checkIfAllPanelIsReady(int panelState){
-		int pState = panelState;
+	public int checkPanelStateAndTypeName(Message msg){
+		System.out.println("select 대장정 5.1(사용자갯수만큼체크): msg의 typeidx: " + msg.getAcidrain().getTypeidx());
+		int pState = 0;
 		int comSize = 0;
+		int typeIdx = 0;
 		for(Com cm : comList){
-			if(cm.getPanelState() != AcidRainClientPanel.PANEL_STATE_ISREADY){
-				System.out.println("모든 클라가 준비버튼을 눌러야 시작됩니다");
-				return;
-			}
-			comSize++;
-		}
-		//모든클라가 준비를 맞췄으면..
-		if(comSize == comList.size()){
-			System.out.println("모든 클라가 준비를 완료하였습니다.");
-			for(Com cm : comList){
-				cm.sendPanelState(13, AcidRainClientPanel.PANEL_STATE_START_SIGN_FIRED);
+			if(cm.getPanelState() == AcidRainClientPanel.PANEL_STATE_ISREADY){
+				comSize++;
+				typeIdx = msg.getAcidrain().getTypeidx();
+				System.out.println("select 대장정 5.2의 typeidx: " + typeIdx);
 			}
 		}
+		if(comSize != comList.size()){
+			System.out.println("모든 클라가 준비를 완료해야 합니다. 다시하세요.");
+			return 0;
+		}
+		System.out.println("모든 클라가 준비를 완료하였습니다.");
+		System.out.println("select 대장정 5.3 클라 panelStateANdTypeName끝나기 직전 idx: " + typeIdx);
+		return typeIdx;
 	}
 	
 	// 클라의 panelStater를 보내준다

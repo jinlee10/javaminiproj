@@ -53,7 +53,7 @@ public class AcidRainDAO {
 	
 	// select words
 	public Message selectWords(AcidRain acidrain){
-		
+		System.out.println("dao에서 막 받아온 acidrain의 무언가 값: " + acidrain.getTypeidx());
 		Connection conn = null; //import할때 java.sql.Connection해야대!!!!
 		PreparedStatement stmt = null;
 
@@ -65,6 +65,7 @@ public class AcidRainDAO {
 		Message msg = null;
 		
 		try{
+			System.out.println("aa: " + acidrain.getTypeidx());
 			conn = JDBCUtil.getConnection();
 			stmt = conn.prepareStatement(selectSQL);
 			stmt.setInt(1, acidrain.getTypeidx());
@@ -77,15 +78,17 @@ public class AcidRainDAO {
 			msg = new Message();
 			list = new ArrayList<AcidRain>();
 			
-			
 			while(rst.next()){
 				rain = new AcidRain();
 				rain.setWord(rst.getString("word"));
+				System.out.println(rst.getString("word"));
 				list.add(rain);
+//				System.out.println("list size:" + list.size());
 			}
 			
 			msg.setList(list);
-			
+			System.out.println("안녕 여긴 DAO야. selectWords를 통해 나온 list의 "
+					+ "size는: " + msg.getList().size());
 		}catch(SQLException e){
 			System.out.println("selectSQL error: " + e);
 		}finally{

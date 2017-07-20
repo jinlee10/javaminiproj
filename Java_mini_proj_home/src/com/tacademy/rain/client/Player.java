@@ -8,6 +8,7 @@ public class Player implements Serializable{
 	
 	private String pName;
 	private int pScore;
+	private int pCount;
 	
 	
 	// getter setter //
@@ -23,6 +24,12 @@ public class Player implements Serializable{
 	}
 	public void setpScore(int pScore) {
 		this.pScore = pScore;
+	}
+	public int getpCount() {
+		return pCount;
+	}
+	public void setpCount(int pCount) {
+		this.pCount = pCount;
 	}
 	
 	

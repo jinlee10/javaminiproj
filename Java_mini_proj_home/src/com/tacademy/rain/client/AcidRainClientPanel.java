@@ -33,7 +33,7 @@ public class AcidRainClientPanel extends JPanel{
 	
 	private Random random = new Random(); //랜덤한 자리선정을위한..
 	
-	Font font = new Font("batang", Font.PLAIN, 22);
+	Font font = new Font("아리따-돋움(TTF)-SemiBold", Font.PLAIN, 22);
 	
 	//애니메이션 이너쓰레드 돌리기용
 	private boolean onAir = false;

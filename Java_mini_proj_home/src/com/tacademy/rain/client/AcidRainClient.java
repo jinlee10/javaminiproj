@@ -440,7 +440,7 @@ public class AcidRainClient {
 		
 		//클라 시작 즉시 서버에 접속하여 DB와 통신 준비한다
 		try{
-			s = new Socket("192.168.205.128", 12345);
+			s = new Socket("192.168.205.140", 12345);
 			oos = new ObjectOutputStream( s.getOutputStream() );
 			// 오브젝트로 통신하기위한 magical sequence
 			oos.flush();

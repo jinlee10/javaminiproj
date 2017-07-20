@@ -72,8 +72,6 @@ public class ReaderThreadClient extends Thread{
 //	}
 	
 	public ArrayList<DrawWord> selectWords(Message msg){
-		System.out.println("readerTHread의 selectWords프로토콜타고까지 왔다 1");
-		
 		Message msgTemp = new Message();
 		ArrayList<DrawWord> tempDWList = msg.getDWList();
 		
@@ -95,28 +93,22 @@ public class ReaderThreadClient extends Thread{
 				msg = (Message) ois.readObject();
 				
 				msgType = msg.getType();
-				System.out.println("읽었으면 msgType: " + msgType);
 				// 5 유저리스트 refresh, 6: userScore refresh
 				switch(msgType){
 				case 101:
 					dwList = selectWords(msg);
-					System.out.println("서버에서 dwList를 받았다 1");
 					client.sendPanelDrawWordList(dwList);
-
-					System.out.println("서버에서 dwList를 받았다 2");
 					break;
 				case 11:
 					String[] nameList = msg.getuListString().split(",");
 					System.out.println(nameList);
 					client.showUserList(nameList);
-					System.out.println("난 nameList를 client로 전달하였다");
 					break;
 				case 12:	//서버에서 DrawWordList받아온다
 					dwList = msg.getDWList();
 					client.sendPanelDrawWordList(dwList);
 					//13번에서 옮겨왔다 두줄!
 					panelState = msg.getPanelState();
-					System.out.println("panelState받아온거: " + panelState);
 					client.setPanelState(panelState);
 					break;
 				case 13:	//server서 panelstate를 받아온다음 클라를통해 넣는다

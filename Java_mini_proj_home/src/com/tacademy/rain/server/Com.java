@@ -131,7 +131,6 @@ public class Com extends Thread{
 	}
 	
 	Message selectWords(AcidRain acidrain){
-		System.out.println("select 대장정 8: 이제 dao로 갈준비 " + acidrain.getTypeidx());
 		AcidRainDAO dao = new AcidRainDAO();
 		
 		Message msg = new Message();
@@ -151,8 +150,6 @@ public class Com extends Thread{
 	void updateUserName(AcidRain acidrain, String oldName){
 		AcidRainDAO dao = new AcidRainDAO();
 		
-		System.out.println("dao가기전 새이름: " + acidrain.getUsername()
-				+ ", 구이름: " + oldName);
 		dao.updateUserName(acidrain, oldName);
 		
 		//com이름바꾸기
@@ -206,33 +203,24 @@ public class Com extends Thread{
 					server.sendUserList2All(11);
 					break;
 				case 1:
-					System.out.println("select 대장정 5(com 1번에 막 들어옴) typeidx:" + msg.getAcidrain().getTypeidx());
 					Message tempMsg = msg;
 					int typeIdx = 0;
 					panelState = msg.getPanelState();
-					System.out.println("select 대장정 5.05 com의 panelstate: " + panelState);
 					// 요기서 현재 접속중인 pState == isready 인 애들의
 					// cnt++하고 typeName을 계속 갱신한다
 					typeIdx = server.checkPanelStateAndTypeName(tempMsg);
-					System.out.println("select 대장정 6(최종 typeidx받아옴: )" + typeIdx);
 					tempMsg.getAcidrain().setTypeidx(typeIdx);
-					System.out.println("select 대장정 7(받아온 typeidx를 acidrain에 넣어줌)");
 					
 					tempMsg = selectWords(tempMsg.getAcidrain());
 //					System.out.println("select 대장정 8: selectwords하고난 tempMsg");
-					System.out.println("모두에게 보낼 리스트 만들기 전 tempMsg의 길이: " + tempMsg.getList().size());
 					server.createDrawWordList(tempMsg.getList());
-					System.out.println("서버가보낼 리스트의 길이: " + tempMsg.getList().size());
 					server.sendDrawWordList2All();
-					System.out.println("서버서 모두에게 dwList를 보냇서!");
 					break;
 				case 2:
 					updateUserScore(msg.getAcidrain());
 					break;
 				case 22:
 					updateUserName(msg.getAcidrain(), msg.getNameString());
-					System.out.println("새이름: " + msg.getAcidrain().getUsername());
-					System.out.println("헌이름: " + msg.getNameString());
 					server.sendUserList2All(11);
 					break;
 				case 3:
@@ -253,7 +241,6 @@ public class Com extends Thread{
 //					server.checkIfAllPanelIsReady(panelState);
 					break;
 				case 34:
-					System.out.println("EntryCheck 대장정 3: 서버 프로토콜 34번국도 타고왔으~");
 					entryTemp = msg.getEntryString();
 					//여기서 단어를 각각 클라이언트로 쏴주는데
 					//synchronized를 활용하여

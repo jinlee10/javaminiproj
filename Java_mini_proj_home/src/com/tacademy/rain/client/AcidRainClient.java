@@ -525,6 +525,8 @@ public class AcidRainClient {
 		nPanel = new JPanel(new BorderLayout());
 		nwPanel = new JPanel(new BorderLayout());
 		tfUsername = new JTextField();
+		tfUsername.setBorder(BorderFactory.createLineBorder(new Color(244,  244, 242), 5));
+		tfUsername.setBackground(new Color(254, 254, 252));
 		nwPanel.add(new JLabel(" NAME "), BorderLayout.WEST);
 		nwPanel.add(tfUsername, BorderLayout.CENTER);
 		btnSignUp = new JButton("등록");
@@ -539,10 +541,12 @@ public class AcidRainClient {
 		// center panel
 		cPanel = new JPanel(new BorderLayout());	
 		ap = new AcidRainClientPanel(this);
+		ap.setBorder(BorderFactory.createLineBorder(Color.GRAY, 5));
 		
 		
 		// cs panels
 		csPanel = new JPanel(new GridLayout(2, 1));
+		csPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 238), 5));
 		csnPanel = new JPanel(new BorderLayout()); //CSN
 		
 		btn = new JButton("ENTER");
@@ -553,7 +557,8 @@ public class AcidRainClient {
 		tfEntry = new JTextField();	
 		tfEntry.setActionCommand("E");
 		tfEntry.addActionListener(al);
-		tfEntry.setBorder(BorderFactory.createLineBorder(new Color(222, 200, 222), 4));
+		tfEntry.setBorder(BorderFactory.createLineBorder(new Color(222, 200, 222), 5));
+		tfEntry.setBackground(new Color(243, 220, 242));
 		
 		csnPanel.add(new JLabel("Write here >"), BorderLayout.WEST);
 		csnPanel.add(tfEntry, BorderLayout.CENTER);
@@ -565,7 +570,8 @@ public class AcidRainClient {
 		btn.setActionCommand("T"); //transfer chat
 		btn.addActionListener(al);
 		tfChat = new JTextField();
-		tfChat.setBorder(BorderFactory.createLineBorder(new Color(212, 222, 222), 4));
+		tfChat.setBorder(BorderFactory.createLineBorder(new Color(212, 222, 222), 5));
+		tfChat.setBackground(new Color (232, 242, 242));
 		cssPanel.add(new JLabel("Enter chat >"), BorderLayout.WEST);
 		cssPanel.add(tfChat, BorderLayout.CENTER);
 		cssPanel.add(btn, BorderLayout.EAST);
@@ -579,6 +585,7 @@ public class AcidRainClient {
 		ePanel = new JPanel(new BorderLayout());
 		taList = new JTextArea();
 		taList.setBorder(BorderFactory.createLineBorder(new Color(222, 233, 232), 7));
+		taList.setBackground(new Color(242, 253, 252));
 		taList.setEditable(false);
 		
 		btnStart = new JButton("START GAME");
@@ -587,7 +594,7 @@ public class AcidRainClient {
 		
 		ePanel.add(taList, BorderLayout.CENTER);
 		ePanel.add(btnStart, BorderLayout.SOUTH);
-		ePanel.setBorder(BorderFactory.createLineBorder(new Color(232, 220, 210), 3));
+		ePanel.setBorder(BorderFactory.createLineBorder(new Color(232, 220, 210), 5));
 		
 		ecPanel = new JPanel(new GridLayout(2, 1)); //east Center
 		
@@ -597,14 +604,18 @@ public class AcidRainClient {
 		
 		ecPanel.add(ecnPanel);
 		taTypename = new JTextArea();
+		taTypename.setBackground(new Color(238, 238, 248));
+		taTypename.setBorder(BorderFactory.createLineBorder(new Color(223,  223, 233 ), 5));
 		ecPanel.add(taTypename);
 		
 		esPanel = new JPanel(new GridLayout(2, 1));
-		esPanel.setBorder(BorderFactory.createLineBorder(new Color(232, 240, 220), 3));
+		esPanel.setBorder(BorderFactory.createLineBorder(new Color(244, 255, 232)));
 		
 		tfTypeSelect = new JTextField();
 		tfTypeSelect.setActionCommand("G");
 		tfTypeSelect.addActionListener(al);
+		tfTypeSelect.setBorder(BorderFactory.createLineBorder(new Color(222, 230, 210), 5));
+		tfTypeSelect.setBackground(new Color(232, 240, 220));
 		esPanel.add(tfTypeSelect);
 		esPanel.add(btnStart);
 		

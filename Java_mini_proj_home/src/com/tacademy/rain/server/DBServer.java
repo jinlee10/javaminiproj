@@ -44,7 +44,6 @@ public class DBServer {
 		//리스트 초기화
 		dwList = new ArrayList<DrawWord>();
 		ArrayList<AcidRain> rList = list;
-		System.out.println("select 대장정 9 list길이: " + rList.size());
 		
 		int xCoord = 0;
 		int yCoord = 0;
@@ -53,20 +52,15 @@ public class DBServer {
 		for(int i = 0; i < list.size(); i++){
 			xCoord = random.nextInt(450);
 			yCoord = random.nextInt(600) - 600;
-			deltaY = random.nextInt(30) + 5 * currentLevel;
+			deltaY = random.nextInt(10) + 15 * currentLevel;
 
 			dwList.add(new DrawWord(xCoord, yCoord, 
 					rList.get(i).getWord(), deltaY));
 		}
-
-		System.out.println("여긴 server이고 dwList길이: " + dwList.size());
-		
 	}
-	
 	public void sendDrawWordList2All(){
 		for(Com cm : comList){
 			cm.sendDWList(101, dwList);
-			System.out.println("여기는 대빵서버고 dwList의 길이: " + dwList.size());
 		}
 	}
 	

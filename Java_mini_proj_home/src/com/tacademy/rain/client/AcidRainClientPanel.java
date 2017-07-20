@@ -40,7 +40,7 @@ public class AcidRainClientPanel extends JPanel{
 	private AniThread at;
 	private DrawWord word;
 	private int deltaY;
-	private Color c = Color.white;
+	private Color c = new Color(245,245,255);
 	
 	//쓰레드 종료용
 	private int wordCnt;	//DrawWord 갯수 카운트용
@@ -52,20 +52,6 @@ public class AcidRainClientPanel extends JPanel{
 		 this.client = client;
 		 panelState = PANEL_STATE_OPEN;
 	}
-	
-//	public void setList(ArrayList<String> list){ //받아온 리스트
-//		dwList = new ArrayList<DrawWord>();
-//		System.out.println("list size: " + list.size());
-//		
-//		System.out.println("list: " + (list == null ? "null" : "not null"));
-//		for(int i = 0; i < list.size(); i++){
-//			System.out.println(list.get(i));
-//		}
-//		
-//		this.wList = list;
-//		
-//		testAssignWList();
-//	}
 	
 	public void setDrawWordList(ArrayList<DrawWord> dwList){
 		this.dwList = new ArrayList<DrawWord>();
@@ -166,7 +152,7 @@ public class AcidRainClientPanel extends JPanel{
 				if(panelState == PANEL_STATE_START_SIGN_FIRED){
 					//ready일때만(서버에서 줘야한다 서버에서!!!)
 					//panelState = PANEL_STATE_INGAME;
-					drawWords(20);
+					drawWords();
 					
 					//리스트 수량 확인
 					wordTouchedHeight();
@@ -183,7 +169,7 @@ public class AcidRainClientPanel extends JPanel{
 		
 	}
 	
-	public void drawWords(int dy){
+	public void drawWords(){
 		for(int i = 0; i < dwList.size(); i++){
 			DrawWord temp = dwList.get(i);
 			temp.yAxisMover();
@@ -209,8 +195,6 @@ public class AcidRainClientPanel extends JPanel{
 						dwList.get(i).getX(), dwList.get(i).getY());
 			}
 		}
-		
-		//super.paint(g);
 	}
 	
 	@Override
